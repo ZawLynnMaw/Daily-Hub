@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RS Management System</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    color: white;
+}
+
+/* Login Page */
+#loginPage {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-box {
+    background: rgba(255,255,255,0.1);
+    padding: 40px;
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    width: 300px;
+    text-align: center;
+}
+
+.login-box h2 {
+    margin-bottom: 20px;
+}
+
+.login-box input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 8px;
+}
+
+.login-box button {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    background: #00c6ff;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.login-box button:hover {
+    background: #0072ff;
+}
+
+/* Dashboard */
+#dashboard {
+    display: none;
+}
+
+nav {
+    background: rgba(0,0,0,0.3);
+    padding: 15px;
+    display: flex;
+    justify-content: space-around;
+}
+
+nav button {
+    background: transparent;
+    border: 2px solid white;
+    padding: 8px 15px;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+nav button:hover {
+    background: white;
+    color: black;
+}
+
+.section {
+    padding: 30px;
+    display: none;
+}
+
+.active {
+    display: block;
+}
+
+.card {
+    background: rgba(255,255,255,0.1);
+    padding: 20px;
+    border-radius: 15px;
+    margin-top: 15px;
+}
+
+input, textarea {
+    width: 100%;
+    padding: 8px;
+    margin-top: 10px;
+    border-radius: 8px;
+    border: none;
+}
+
+.add-btn {
+    margin-top: 10px;
+    padding: 8px;
+    background: #00ff99;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+ul {
+    margin-top: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN PAGE -->
+<div id="loginPage">
+    <div class="login-box">
+        <h2>RS Login</h2>
+        <input type="text" id="username" placeholder="Username">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="login()">Login</button>
+        <p id="error" style="color:red;margin-top:10px;"></p>
+    </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+
+<nav>
+    <button onclick="showSection('schedule')">📅 Schedule</button>
+    <button onclick="showSection('task')">✅ Task</button>
+    <button onclick="showSection('money')">💰 Money Saving</button>
+    <button onclick="logout()">Logout</button>
+</nav>
+
+<div id="schedule" class="section active">
+    <h2>Schedule</h2>
+    <div class="card">
+        <input type="text" id="scheduleInput" placeholder="Enter schedule">
+        <button class="add-btn" onclick="addItem('scheduleInput','scheduleList')">Add</button>
+        <ul id="scheduleList"></ul>
+    </div>
+</div>
+
+<div id="task" class="section">
+    <h2>Task</h2>
+    <div class="card">
+        <input type="text" id="taskInput" placeholder="Enter task">
+        <button class="add-btn" onclick="addItem('taskInput','taskList')">Add</button>
+        <ul id="taskList"></ul>
+    </div>
+</div>
+
+<div id="money" class="section">
+    <h2>Money Saving</h2>
+    <div class="card">
+        <input type="text" id="moneyInput" placeholder="Enter saving detail">
+        <button class="add-btn" onclick="addItem('moneyInput','moneyList')">Add</button>
+        <ul id="moneyList"></ul>
+    </div>
+</div>
+
+</div>
+
+<script>
+
+// Login system
+function login() {
+    let user = document.getElementById("username").value;
+    let pass = document.getElementById("password").value;
+
+    if(user === "admin" && pass === "1234") {
+        document.getElementById("loginPage").style.display = "none";
+        document.getElementById("dashboard").style.display = "block";
+    } else {
+        document.getElementById("error").innerText = "Invalid username or password";
+    }
+}
+
+// Logout
+function logout() {
+    location.reload();
+}
+
+// Section switch
+function showSection(sectionId) {
+    let sections = document.querySelectorAll(".section");
+    sections.forEach(sec => sec.classList.remove("active"));
+    document.getElementById(sectionId).classList.add("active");
+}
+
+// Add items
+function addItem(inputId, listId) {
+    let input = document.getElementById(inputId);
+    let value = input.value;
+    if(value.trim() === "") return;
+
+    let li = document.createElement("li");
+    li.innerText = value;
+    document.getElementById(listId).appendChild(li);
+    input.value = "";
+}
+
+</script>
+
+</body>
+</html>
