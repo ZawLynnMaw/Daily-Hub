@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RS Management System</title>
+<title>Our Daily Hub</title>
 
 <style>
 * {
@@ -156,30 +156,73 @@ ul {
 <div id="schedule" class="section active">
     <h2>Schedule</h2>
     <div class="card">
-        <input type="text" id="scheduleInput" placeholder="Enter schedule">
-        <button class="add-btn" onclick="addItem('scheduleInput','scheduleList')">Add</button>
-        <ul id="scheduleList"></ul>
+        <input type="text" id="titleInput" placeholder="Enter Title">
+        <input type="date" id="dateInput">
+
+        <select id="typeInput">
+            <option value="Schedule">Schedule</option>
+            <option value="Task">Task</option>
+            <option value="Money">Money Saving</option>
+        </select>
+
+        <button class="add-btn" onclick="addRecord()">Add</button>
+    </div>
+
+    <div class="card">
+        <button onclick="filterData('all')">All</button>
+        <button onclick="filterData('today')">Today</button>
+        <button onclick="filterData('month')">This Month</button>
+
+        <ul id="recordList"></ul>
     </div>
 </div>
 
 <div id="task" class="section">
     <h2>Task</h2>
     <div class="card">
-        <input type="text" id="taskInput" placeholder="Enter task">
-        <button class="add-btn" onclick="addItem('taskInput','taskList')">Add</button>
-        <ul id="taskList"></ul>
+        <input type="text" id="titleInput" placeholder="Enter Title">
+        <input type="date" id="dateInput">
+
+        <select id="typeInput">
+            <option value="Schedule">Schedule</option>
+            <option value="Task">Task</option>
+            <option value="Money">Money Saving</option>
+        </select>
+
+        <button class="add-btn" onclick="addRecord()">Add</button>
+    </div>
+
+    <div class="card">
+        <button onclick="filterData('all')">All</button>
+        <button onclick="filterData('today')">Today</button>
+        <button onclick="filterData('month')">This Month</button>
+
+        <ul id="recordList"></ul>
     </div>
 </div>
 
 <div id="money" class="section">
     <h2>Money Saving</h2>
     <div class="card">
-        <input type="text" id="moneyInput" placeholder="Enter saving detail">
-        <button class="add-btn" onclick="addItem('moneyInput','moneyList')">Add</button>
-        <ul id="moneyList"></ul>
-    </div>
-</div>
+        <input type="text" id="titleInput" placeholder="Enter Title">
+        <input type="date" id="dateInput">
 
+        <select id="typeInput">
+            <option value="Schedule">Schedule</option>
+            <option value="Task">Task</option>
+            <option value="Money">Money Saving</option>
+        </select>
+
+        <button class="add-btn" onclick="addRecord()">Add</button>
+    </div>
+
+    <div class="card">
+        <button onclick="filterData('all')">All</button>
+        <button onclick="filterData('today')">Today</button>
+        <button onclick="filterData('month')">This Month</button>
+
+        <ul id="recordList"></ul>
+    </div>
 </div>
 
 <script>
@@ -189,7 +232,7 @@ function login() {
     let user = document.getElementById("username").value;
     let pass = document.getElementById("password").value;
 
-    if(user === "admin" && pass === "1234") {
+    if(user === "Mptzzlm" && pass === "aishiteru") {
         document.getElementById("loginPage").style.display = "none";
         document.getElementById("dashboard").style.display = "block";
     } else {
@@ -202,25 +245,104 @@ function logout() {
     location.reload();
 }
 
-// Section switch
-function showSection(sectionId) {
-    let sections = document.querySelectorAll(".section");
-    sections.forEach(sec => sec.classList.remove("active"));
-    document.getElementById(sectionId).classList.add("active");
+let editIndex = -1;
+
+window.onload = function() {
+    loadData("all");
+};
+
+function addRecord() {
+    let title = document.getElementById("titleInput").value;
+    let date = document.getElementById("dateInput").value;
+    let type = document.getElementById("typeInput").value;
+
+    if(title.trim() === "" || date === "") return;
+
+    let records = JSON.parse(localStorage.getItem("records")) || [];
+
+    if(editIndex === -1) {
+        records.push({title, date, type});
+    } else {
+        records[editIndex] = {title, date, type};
+        editIndex = -1;
+    }
+
+    localStorage.setItem("records", JSON.stringify(records));
+
+    document.getElementById("titleInput").value = "";
+    document.getElementById("dateInput").value = "";
+
+    loadData("all");
 }
 
-// Add items
-function addItem(inputId, listId) {
-    let input = document.getElementById(inputId);
-    let value = input.value;
-    if(value.trim() === "") return;
+function loadData(filter) {
+    let list = document.getElementById("recordList");
+    list.innerHTML = "";
 
-    let li = document.createElement("li");
-    li.innerText = value;
-    document.getElementById(listId).appendChild(li);
-    input.value = "";
+    let records = JSON.parse(localStorage.getItem("records")) || [];
+
+    let today = new Date().toISOString().split("T")[0];
+    let thisMonth = today.substring(0,7);
+
+    records.forEach((item, index) => {
+
+        if(filter === "today" && item.date !== today) return;
+        if(filter === "month" && !item.date.startsWith(thisMonth)) return;
+
+        let li = document.createElement("li");
+        li.innerHTML = `
+            <b>${item.type}</b> | ${item.title} | ${item.date}
+            <button onclick="editRecord(${index})" style="margin-left:10px;">Edit</button>
+            <button onclick="deleteRecord(${index})" style="color:red;">Delete</button>
+        `;
+        list.appendChild(li);
+    });
 }
 
+function deleteRecord(index) {
+    let records = JSON.parse(localStorage.getItem("records")) || [];
+    records.splice(index, 1);
+    localStorage.setItem("records", JSON.stringify(records));
+    loadData("all");
+}
+
+function editRecord(index) {
+    let records = JSON.parse(localStorage.getItem("records")) || [];
+
+    document.getElementById("titleInput").value = records[index].title;
+    document.getElementById("dateInput").value = records[index].date;
+    document.getElementById("typeInput").value = records[index].type;
+
+    editIndex = index;
+}
+
+function filterData(type) {
+    loadData(type);
+}
+
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyDLHBbVIsr4mu8PhnWM_n4XHuxJsGkiOpE",
+    authDomain: "zaw--lynn-maw.firebaseapp.com",
+    projectId: "zaw--lynn-maw",
+    storageBucket: "zaw--lynn-maw.firebasestorage.app",
+    messagingSenderId: "618191013506",
+    appId: "1:618191013506:web:2ba52ea74b6cbda0db969b",
+    measurementId: "G-BKYBXB6PGQ"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  
 </script>
 
 </body>
