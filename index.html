@@ -245,6 +245,25 @@ function logout() {
     location.reload();
 }
 
+// Section switch
+function showSection(sectionId) {
+    let sections = document.querySelectorAll(".section");
+    sections.forEach(sec => sec.classList.remove("active"));
+    document.getElementById(sectionId).classList.add("active");
+}
+
+// Add items
+function addItem(inputId, listId) {
+    let input = document.getElementById(inputId);
+    let value = input.value;
+    if(value.trim() === "") return;
+
+    let li = document.createElement("li");
+    li.innerText = value;
+    document.getElementById(listId).appendChild(li);
+    input.value = "";
+}
+
 let editIndex = -1;
 
 window.onload = function() {
