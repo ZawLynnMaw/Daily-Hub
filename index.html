@@ -13,126 +13,8 @@
     font-family: 'Segoe UI', sans-serif;
 }
 
-body {
-    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-    color: white;
-}
-
-/* Login Page */
-#loginPage {
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.login-box {
-    background: rgba(255,255,255,0.1);
-    padding: 40px;
-    border-radius: 15px;
-    backdrop-filter: blur(10px);
-    width: 300px;
-    text-align: center;
-}
-
-.login-box h2 {
-    margin-bottom: 20px;
-}
-
-.login-box input {
-    width: 100%;
-    padding: 10px;
-    margin: 10px 0;
-    border: none;
-    border-radius: 8px;
-}
-
-.login-box button {
-    width: 100%;
-    padding: 10px;
-    border: none;
-    border-radius: 8px;
-    background: #00c6ff;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-.login-box button:hover {
-    background: #0072ff;
-}
-
-/* Dashboard */
-#dashboard {
-    display: none;
-}
-
-nav {
-    background: rgba(0,0,0,0.3);
-    padding: 15px;
-    display: flex;
-    justify-content: space-around;
-}
-
-nav button {
-    background: transparent;
-    border: 2px solid white;
-    padding: 8px 15px;
-    color: white;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-nav button:hover {
-    background: white;
-    color: black;
-}
-
-.section {
-    padding: 30px;
-    display: none;
-}
-
-.active {
-    display: block;
-}
-
-.card {
-    background: rgba(255,255,255,0.1);
-    padding: 20px;
-    border-radius: 15px;
-    margin-top: 15px;
-}
-
-input, textarea {
-    width: 100%;
-    padding: 8px;
-    margin-top: 10px;
-    border-radius: 8px;
-    border: none;
-}
-
-.add-btn {
-    margin-top: 10px;
-    padding: 8px;
-    background: #00ff99;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-}
-
-ul {
-    margin-top: 10px;
-}
-</style>
-</head>
-
 <body>
 
-<!-- LOGIN PAGE -->
 <div id="loginPage">
     <div class="login-box">
         <h2>Daily Hub</h2>
@@ -143,7 +25,6 @@ ul {
     </div>
 </div>
 
-<!-- DASHBOARD -->
 <div id="dashboard">
 
 <nav>
@@ -153,163 +34,108 @@ ul {
     <button onclick="logout()">Logout</button>
 </nav>
 
-<div id="schedule" class="section active">
-    <h2>Schedule</h2>
+<div class="section active" id="mainSection" style="padding: 20px;">
     <div class="card">
-        <input type="text" id="titleInput" placeholder="Enter Title">
-        <input type="date" id="dateInput">
-
-        <select id="typeInput">
+        <h3>Add New Entry</h3>
+        <input type="text" id="globalTitle" placeholder="What is it?">
+        <input type="date" id="globalDate">
+        <select id="globalType">
             <option value="Schedule">Schedule</option>
             <option value="Task">Task</option>
             <option value="Money">Money Saving</option>
         </select>
-
-        <button class="add-btn" onclick="addRecord()">Add</button>
+        <button class="add-btn" onclick="addRecord()">Add Record</button>
     </div>
+</div>
 
-    <div class="card">
-        <button onclick="filterData('all')">All</button>
-        <button onclick="filterData('today')">Today</button>
-        <button onclick="filterData('month')">This Month</button>
-
-        <ul id="recordList"></ul>
+<div id="schedule" class="section">
+    <h2>Google Calendar View</h2>
+    <div class="card" style="height: 400px; overflow: hidden; padding: 0;">
+        <iframe src="https://calendar.google.com/calendar/embed?src=en.usa%23holiday%40group.v.calendar.google.com&ctz=America%2FNew_York" style="border: 0" width="100%" height="400" frameborder="0" scrolling="no"></iframe>
     </div>
+    <ul id="scheduleList"></ul>
 </div>
 
 <div id="task" class="section">
-    <h2>Task</h2>
-    <div class="card">
-        <input type="text" id="titleInput" placeholder="Enter Title">
-        <input type="date" id="dateInput">
-
-        <select id="typeInput">
-            <option value="Schedule">Schedule</option>
-            <option value="Task">Task</option>
-            <option value="Money">Money Saving</option>
-        </select>
-
-        <button class="add-btn" onclick="addRecord()">Add</button>
-    </div>
-
-    <div class="card">
-        <button onclick="filterData('all')">All</button>
-        <button onclick="filterData('today')">Today</button>
-        <button onclick="filterData('month')">This Month</button>
-
-        <ul id="recordList"></ul>
-    </div>
+    <h2>Task List</h2>
+    <ul id="taskList"></ul>
 </div>
 
 <div id="money" class="section">
-    <h2>Money Saving</h2>
-    <div class="card">
-        <input type="text" id="titleInput" placeholder="Enter Title">
-        <input type="date" id="dateInput">
+    <h2>Money Log</h2>
+    <ul id="moneyList"></ul>
+</div>
 
-        <select id="typeInput">
-            <option value="Schedule">Schedule</option>
-            <option value="Task">Task</option>
-            <option value="Money">Money Saving</option>
-        </select>
-
-        <button class="add-btn" onclick="addRecord()">Add</button>
-    </div>
-
-    <div class="card">
-        <button onclick="filterData('all')">All</button>
-        <button onclick="filterData('today')">Today</button>
-        <button onclick="filterData('month')">This Month</button>
-
-        <ul id="recordList"></ul>
-    </div>
 </div>
 
 <script>
-// Login system
+// Replace this with your Google Web App URL from Step 1
+const GOOGLE_SHEET_URL = "https://script.google.com/u/0/home/projects/1UODAevx701vtGy-vt7hGjq2ZiV5N4uNzsOYsLxNxOR1HrtPUBteveYG_/edit";
+
 function login() {
     let user = document.getElementById("username").value;
     let pass = document.getElementById("password").value;
-
-    // Matches your requested credentials
     if(user === "Mptzzlm" && pass === "aishiteru") {
         document.getElementById("loginPage").style.display = "none";
         document.getElementById("dashboard").style.display = "block";
-        loadData("all"); // Ensure data loads after login
+        loadData();
     } else {
-        document.getElementById("error").innerText = "Invalid username or password";
+        document.getElementById("error").innerText = "Invalid credentials";
     }
 }
 
-// Logout
-function logout() {
-    location.reload();
-}
-
-// Section switch
 function showSection(sectionId) {
-    let sections = document.querySelectorAll(".section");
-    sections.forEach(sec => sec.classList.remove("active"));
+    document.querySelectorAll(".section").forEach(sec => sec.classList.remove("active"));
     document.getElementById(sectionId).classList.add("active");
+    document.getElementById('mainSection').classList.add("active"); // Keep input visible
 }
 
-let editIndex = -1;
+async function addRecord() {
+    let title = document.getElementById("globalTitle").value;
+    let date = document.getElementById("globalDate").value;
+    let type = document.getElementById("globalType").value;
 
-// Unified Add Record Function
-function addRecord() {
-    // Note: This picks the inputs from the CURRENT active section
-    let activeSection = document.querySelector('.section.active');
-    let title = activeSection.querySelector("#titleInput").value;
-    let date = activeSection.querySelector("#dateInput").value;
-    let type = activeSection.querySelector("#typeInput").value;
+    if(!title || !date) return alert("Fill all fields");
 
-    if(title.trim() === "" || date === "") {
-        alert("Please fill in all fields");
-        return;
-    }
+    let record = { title, date, type, action: 'add' };
 
+    // 1. Save to Local for speed
     let records = JSON.parse(localStorage.getItem("records")) || [];
-
-    if(editIndex === -1) {
-        records.push({title, date, type});
-    } else {
-        records[editIndex] = {title, date, type};
-        editIndex = -1;
-    }
-
+    records.push(record);
     localStorage.setItem("records", JSON.stringify(records));
 
-    // Clear inputs in active section
-    activeSection.querySelector("#titleInput").value = "";
-    activeSection.querySelector("#dateInput").value = "";
+    // 2. Save to Google Sheets (Optional - if you set up Step 1)
+    /*
+    fetch(GOOGLE_SHEET_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        body: JSON.stringify(record)
+    });
+    */
 
-    loadData("all");
+    document.getElementById("globalTitle").value = "";
+    loadData();
 }
 
-function loadData(filter) {
+function loadData() {
     let records = JSON.parse(localStorage.getItem("records")) || [];
-    let today = new Date().toISOString().split("T")[0];
-    let thisMonth = today.substring(0,7);
-
-    // Update ALL lists across all sections
-    let lists = document.querySelectorAll("#recordList");
     
-    lists.forEach(list => {
-        list.innerHTML = "";
-        records.forEach((item, index) => {
-            if(filter === "today" && item.date !== today) return;
-            if(filter === "month" && !item.date.startsWith(thisMonth)) return;
+    // Clear all lists
+    const sList = document.getElementById("scheduleList");
+    const tList = document.getElementById("taskList");
+    const mList = document.getElementById("moneyList");
+    
+    sList.innerHTML = tList.innerHTML = mList.innerHTML = "";
 
-            let li = document.createElement("li");
-            li.style.listStyle = "none";
-            li.style.padding = "10px 0";
-            li.innerHTML = `
-                <b>[${item.type}]</b> ${item.title} — <i>${item.date}</i>
-                <button onclick="editRecord(${index})" style="margin-left:10px; cursor:pointer;">Edit</button>
-                <button onclick="deleteRecord(${index})" style="color:red; cursor:pointer;">Delete</button>
-            `;
-            list.appendChild(li);
-        });
+    records.forEach((item, index) => {
+        let li = document.createElement("li");
+        li.className = "card";
+        li.innerHTML = `<b>${item.title}</b> <br> <small>${item.date}</small> 
+                        <button onclick="deleteRecord(${index})" style="float:right; color:red;">X</button>`;
+        
+        if(item.type === "Schedule") sList.appendChild(li);
+        if(item.type === "Task") tList.appendChild(li);
+        if(item.type === "Money") mList.appendChild(li);
     });
 }
 
@@ -317,23 +143,10 @@ function deleteRecord(index) {
     let records = JSON.parse(localStorage.getItem("records")) || [];
     records.splice(index, 1);
     localStorage.setItem("records", JSON.stringify(records));
-    loadData("all");
+    loadData();
 }
 
-function editRecord(index) {
-    let records = JSON.parse(localStorage.getItem("records")) || [];
-    let activeSection = document.querySelector('.section.active');
-
-    activeSection.querySelector("#titleInput").value = records[index].title;
-    activeSection.querySelector("#dateInput").value = records[index].date;
-    activeSection.querySelector("#typeInput").value = records[index].type;
-
-    editIndex = index;
-}
-
-function filterData(type) {
-    loadData(type);
-}
+function logout() { location.reload(); }
 </script>
 
 <script type="module">
