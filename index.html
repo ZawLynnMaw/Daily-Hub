@@ -3,141 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Our Daily Hub</title>
+    <title>Our Daily Hub - Black Love Edition</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: #0a0a0a; color: white; min-height: 100vh; padding-bottom: 50px; }
         
-        /* --- SIMPLE LOVE LOGIN UI --- */
+        /* --- BLACK LOVE LOGIN UI --- */
         #loginPage { 
             height: 100vh; 
             display: flex; 
             justify-content: center; 
             align-items: center; 
-            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); /* Soft Pink Gradient */
-            overflow: hidden;
+            background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
             position: relative;
+            overflow: hidden;
         }
 
-        /* Floating Hearts Animation Background */
-        #loginPage::before {
-            content: "❤️";
+        /* Floating Neon Hearts in Background */
+        .bg-heart {
             position: absolute;
-            font-size: 100px;
-            opacity: 0.1;
-            bottom: -20px;
-            left: 10%;
-            animation: float 6s infinite ease-in-out;
+            color: rgba(255, 0, 50, 0.1);
+            font-size: 20px;
+            animation: floatUp 10s infinite linear;
+            z-index: 1;
         }
 
-        @keyframes float {
-            0% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-50px) rotate(20deg); }
-            100% { transform: translateY(0) rotate(0deg); }
+        @keyframes floatUp {
+            0% { transform: translateY(110vh) rotate(0deg); opacity: 0; }
+            50% { opacity: 0.5; }
+            100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
         }
 
         .login-box { 
-            background: rgba(255, 255, 255, 0.9); 
-            padding: 40px; 
-            border-radius: 30px; 
+            background: rgba(20, 20, 20, 0.8); 
+            padding: 45px 35px; 
+            border-radius: 25px; 
+            backdrop-filter: blur(15px); 
             width: 340px; 
             text-align: center; 
-            box-shadow: 0 15px 35px rgba(255, 75, 43, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            border: 1px solid #333;
+            box-shadow: 0 0 40px rgba(255, 0, 0, 0.15);
             z-index: 10;
         }
 
         .login-box h2 { 
-            color: #ff4b2b; 
-            font-size: 26px;
-            margin-bottom: 10px;
-            letter-spacing: 1px;
+            color: #fff; 
+            font-size: 24px;
+            margin-bottom: 8px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
         }
 
-        .heart-icon {
-            font-size: 40px;
-            margin-bottom: 15px;
+        .main-heart {
+            font-size: 50px;
+            color: #ff0033;
             display: inline-block;
-            animation: heartbeat 1.5s infinite;
+            margin-bottom: 15px;
+            text-shadow: 0 0 20px #ff0033;
+            animation: pulse 1.5s infinite;
         }
 
-        @keyframes heartbeat {
-            0% { transform: scale(1); }
-            15% { transform: scale(1.3); }
-            30% { transform: scale(1); }
-            45% { transform: scale(1.15); }
-            60% { transform: scale(1); }
+        @keyframes pulse {
+            0% { transform: scale(1); text-shadow: 0 0 10px #ff0033; }
+            50% { transform: scale(1.15); text-shadow: 0 0 30px #ff0033; }
+            100% { transform: scale(1); text-shadow: 0 0 10px #ff0033; }
         }
 
         .login-box input { 
             width: 100%; 
-            padding: 12px 20px; 
-            margin: 10px 0; 
-            border: 1px solid #ffd1d1; 
-            border-radius: 50px; 
+            padding: 14px; 
+            margin: 12px 0; 
+            border: 1px solid #222; 
+            border-radius: 12px; 
             outline: none; 
-            background: #fffafa;
+            background: #111;
+            color: white;
             transition: 0.3s;
+            text-align: center;
         }
 
-        .login-box input:focus { border-color: #ff4b2b; box-shadow: 0 0 5px rgba(255, 75, 43, 0.2); }
+        .login-box input:focus { 
+            border-color: #ff0033; 
+            box-shadow: 0 0 10px rgba(255, 0, 50, 0.3);
+            background: #000;
+        }
 
         .login-box button { 
             width: 100%; 
-            padding: 12px; 
+            padding: 14px; 
             margin-top: 15px;
             border: none; 
-            border-radius: 50px; 
-            background: linear-gradient(to right, #ff416c, #ff4b2b); 
+            border-radius: 12px; 
+            background: #ff0033; 
             color: white; 
             font-weight: bold; 
             cursor: pointer; 
             font-size: 16px;
-            transition: 0.4s;
+            transition: 0.3s;
+            box-shadow: 0 5px 15px rgba(255, 0, 50, 0.3);
         }
 
-        .login-box button:hover { opacity: 0.9; transform: scale(1.02); }
+        .login-box button:hover { 
+            background: #cc0029; 
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 0, 50, 0.5);
+        }
 
-        /* --- DASHBOARD DESIGN (Kept from before) --- */
-        #dashboard { display: none; background: #fdf2f2; min-height: 100vh; }
-        nav { background: #333; padding: 15px; display: flex; justify-content: space-around; position: sticky; top: 0; z-index: 100; }
-        nav button { background: transparent; border: 1px solid white; padding: 8px 12px; color: white; border-radius: 8px; cursor: pointer; }
-        
-        .section { padding: 20px; display: none; width: 95%; margin: auto; color: #333; }
+        /* Dashboard Styles (Original preserved but blended) */
+        #dashboard { display: none; background: #0f2027; min-height: 100vh; }
+        nav { background: rgba(0,0,0,0.8); padding: 15px; display: flex; justify-content: space-around; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); }
+        nav button { background: transparent; border: 1px solid white; padding: 8px 12px; color: white; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+        nav button:hover { background: white; color: black; }
+        .section { padding: 20px; display: none; width: 95%; margin: auto; }
         .active { display: block; }
-        .card { background: white; padding: 20px; border-radius: 15px; margin-top: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        input, select { padding: 10px; border-radius: 8px; border: 1px solid #ddd; margin: 5px; }
-
-        .total-box { background: #ff4b2b; color: white; padding: 15px; border-radius: 12px; text-align: center; font-size: 22px; font-weight: bold; margin-bottom: 15px; }
+        .card { background: rgba(255,255,255,0.1); padding: 20px; border-radius: 15px; margin-top: 15px; }
+        input, select { padding: 10px; border-radius: 8px; border: none; margin: 5px; font-size: 14px; }
         .table-container { overflow-x: auto; margin-top: 20px; background: white; border-radius: 10px; }
-        table { width: 100%; border-collapse: collapse; min-width: 850px; }
-        th, td { border: 1px solid #eee; padding: 12px; text-align: center; }
-        th { background-color: #ffd1d1; color: #333; }
-        .student-col { background-color: #fff9f9 !important; font-weight: bold; }
-
+        table { width: 100%; border-collapse: collapse; color: #333; min-width: 900px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: center; font-size: 13px; }
+        th { background-color: #00ff00; color: black; font-weight: bold; }
+        .student-col { background-color: #ffff00 !important; font-weight: bold; text-align: left; }
+        .total-box { background: #ff0033; color: white; padding: 15px; border-radius: 12px; text-align: center; font-size: 22px; font-weight: bold; margin-bottom: 15px; }
         .hub-list { list-style: none; margin-top: 15px; }
-        .hub-item { background: #fff; padding: 15px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #ff4b2b; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .hub-item { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #ff0033; }
+        .add-btn { background: #ff0033; padding: 12px 25px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; }
+        .delete-btn { background: #ff4d4d; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; }
 
-        .add-btn { background: #ff4b2b; color: white; padding: 10px 25px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        .delete-btn { background: #ff4d4d; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 11px; }
-
-        /* Student Row Colors */
-        .row-susu { background-color: #ff990022; }
-        .row-moeyati { background-color: #9900ff22; }
-        .row-raymand { background-color: #00ffff22; }
-        .row-sofia { background-color: #ff00ff22; }
+        /* Row Colors */
+        .row-susu { background-color: #ff9900; }
+        .row-moeyati { background-color: #9900ff; color: white; }
+        .row-raymand { background-color: #00ffff; }
+        .row-sofia { background-color: #ff00ff; color: white; }
     </style>
 </head>
 <body>
 
 <div id="loginPage">
     <div class="login-box">
-        <div class="heart-icon">❤️</div>
+        <div class="main-heart">❤</div>
         <h2>Daily Hub</h2>
-        <p style="color: #888; margin-bottom: 20px; font-size: 14px;">Welcome back, Darling!</p>
+        <p style="color: #666; font-size: 13px; margin-bottom: 15px;">Aishiteru, Mptzzlm</p>
         <input type="text" id="username" placeholder="Username">
         <input type="password" id="password" placeholder="Password">
-        <button onclick="login()">Login</button>
-        <p id="error" style="color:#ff4b2b; margin-top:10px; font-size: 13px;"></p>
+        <button onclick="login()">Enter Our World</button>
+        <p id="error" style="color:#ff0033; margin-top:10px; font-size: 13px;"></p>
     </div>
 </div>
 
@@ -145,7 +154,7 @@
     <nav>
         <button onclick="showSection('schedule')">📅 Class Grid</button>
         <button onclick="showSection('activity')">🏃 Activities</button>
-        <button onclick="showSection('saving')">💰 Savings</button>
+        <button onclick="showSection('saving')">💰 Money Saving</button>
         <button onclick="logout()">Logout</button>
     </nav>
 
@@ -160,13 +169,18 @@
                 <option value="Friday">Friday</option><option value="Saturday">Saturday</option>
                 <option value="Sunday">Sunday</option>
             </select>
-            <input type="text" id="timeRange" placeholder="Time">
-            <button class="add-btn" onclick="saveClass()">Save</button>
+            <input type="text" id="timeRange" placeholder="Time (e.g. 16:00 to 17:30)">
+            <button class="add-btn" onclick="saveClass()">Save to Grid</button>
         </div>
         <div class="table-container">
             <table>
                 <thead>
-                    <tr><th class="student-col">Student</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th><th>Sun</th><th>X</th></tr>
+                    <tr>
+                        <th style="background:#ffff00">Student</th>
+                        <th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th>
+                        <th>Friday</th><th>Saturday</th><th>Sunday</th>
+                        <th>Action</th>
+                    </tr>
                 </thead>
                 <tbody id="scheduleBody"></tbody>
             </table>
@@ -177,8 +191,8 @@
         <div class="card">
             <h3>Add Daily Activity</h3>
             <input type="text" id="actTitle" placeholder="Activity Title">
-            <input type="text" id="actNote" placeholder="Notes">
-            <button class="add-btn" onclick="saveHubItem('activity')">Add</button>
+            <input type="text" id="actNote" placeholder="Notes/Details">
+            <button class="add-btn" onclick="saveHubItem('activity')">Add Activity</button>
         </div>
         <ul id="activityList" class="hub-list"></ul>
     </div>
@@ -186,17 +200,29 @@
     <div class="section" id="saving">
         <div class="total-box">Total Savings: <span id="totalAmountDisplay">0</span></div>
         <div class="card">
-            <h3>Log Savings</h3>
-            <input type="text" id="saveTitle" placeholder="Title">
-            <input type="number" id="saveAmount" placeholder="Amount">
-            <button class="add-btn" onclick="saveHubItem('saving')">Log</button>
+            <h3>Add Saving Goal</h3>
+            <input type="text" id="saveTitle" placeholder="Saving Title">
+            <input type="number" id="saveAmount" placeholder="Amount (Numbers only)">
+            <button class="add-btn" onclick="saveHubItem('saving')">Log Saving</button>
         </div>
         <ul id="savingList" class="hub-list"></ul>
     </div>
 </div>
 
 <script>
-// Logic preserved from previous versions
+// Create floating background hearts
+const loginPage = document.getElementById('loginPage');
+for(let i=0; i<15; i++) {
+    const heart = document.createElement('div');
+    heart.className = 'bg-heart';
+    heart.innerText = '❤';
+    heart.style.left = Math.random() * 100 + 'vw';
+    heart.style.animationDuration = (Math.random() * 5 + 5) + 's';
+    heart.style.animationDelay = Math.random() * 5 + 's';
+    loginPage.appendChild(heart);
+}
+
+// Enter Key Login Support
 document.addEventListener("DOMContentLoaded", () => {
     const inputs = [document.getElementById("username"), document.getElementById("password")];
     inputs.forEach(input => {
@@ -212,7 +238,7 @@ function login() {
         document.getElementById("dashboard").style.display = "block";
         renderAll();
     } else {
-        document.getElementById("error").innerText = "Login Failed, Love!";
+        document.getElementById("error").innerText = "Not today, stranger. ❤️";
     }
 }
 
@@ -227,6 +253,7 @@ function saveClass() {
     const day = document.getElementById("daySelect").value;
     const time = document.getElementById("timeRange").value;
     if(!name || !time) return alert("Fill Name and Time!");
+
     let data = JSON.parse(localStorage.getItem("grid_data")) || {};
     if(!data[name]) data[name] = {};
     data[name][day] = `<b>${title}</b><br>${time}`;
@@ -239,26 +266,31 @@ function renderSchedule() {
     const body = document.getElementById("scheduleBody");
     body.innerHTML = "";
     const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
     for (let student in data) {
         let tr = document.createElement("tr");
         let safeName = student.toLowerCase().replace(/\s/g, '');
         tr.classList.add("row-" + safeName);
         let html = `<td class="student-col">${student}</td>`;
         days.forEach(day => { html += `<td>${data[student][day] || ""}</td>`; });
-        html += `<td><button class="delete-btn" onclick="deleteRow('${student}')">X</button></td>`;
+        html += `<td><button class="delete-btn" onclick="deleteRow('${student}')">Delete</button></td>`;
         tr.innerHTML = html;
         body.appendChild(tr);
     }
 }
 
 function saveHubItem(type) {
-    const titleF = type === 'activity' ? document.getElementById("actTitle") : document.getElementById("saveTitle");
-    const detailF = type === 'activity' ? document.getElementById("actNote") : document.getElementById("saveAmount");
-    if(!titleF.value || !detailF.value) return alert("Fill fields!");
+    const titleField = type === 'activity' ? document.getElementById("actTitle") : document.getElementById("saveTitle");
+    const detailField = type === 'activity' ? document.getElementById("actNote") : document.getElementById("saveAmount");
+
+    if(!titleField.value || !detailField.value) return alert("Fill all fields!");
+
     let items = JSON.parse(localStorage.getItem(type + "_data")) || [];
-    items.push({ title: titleF.value, detail: detailF.value, id: Date.now() });
+    items.push({ title: titleField.value, detail: detailField.value, id: Date.now() });
     localStorage.setItem(type + "_data", JSON.stringify(items));
-    titleF.value = ""; detailF.value = "";
+    
+    titleField.value = "";
+    detailField.value = "";
     renderHubList(type);
 }
 
@@ -267,14 +299,16 @@ function renderHubList(type) {
     const list = document.getElementById(type + "List");
     list.innerHTML = "";
     let total = 0;
+
     items.forEach(item => {
         if(type === 'saving') total += parseFloat(item.detail || 0);
         let li = document.createElement("li");
         li.className = "hub-item";
-        li.innerHTML = `<div><strong>${item.title}</strong><br><small>${item.detail}</small></div>
+        li.innerHTML = `<div><strong>${item.title}</strong><br><small>${type === 'saving' ? '$' : ''}${item.detail}</small></div>
                         <button class="delete-btn" onclick="deleteItem('${type}', ${item.id})">Remove</button>`;
         list.appendChild(li);
     });
+
     if(type === 'saving') document.getElementById("totalAmountDisplay").innerText = total.toLocaleString();
 }
 
