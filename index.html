@@ -3,35 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Our Daily Hub</title>
-
+    <title>Our Daily Hub - Schedule Grid</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); color: white; min-height: 100vh; }
+        body { background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); color: white; min-height: 100vh; padding-bottom: 50px; }
         
         /* Login Page */
         #loginPage { height: 100vh; display: flex; justify-content: center; align-items: center; }
-        .login-box { background: rgba(255,255,255,0.1); padding: 40px; border-radius: 15px; backdrop-filter: blur(10px); width: 320px; text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
-        .login-box h2 { margin-bottom: 20px; }
+        .login-box { background: rgba(255,255,255,0.1); padding: 40px; border-radius: 15px; backdrop-filter: blur(10px); width: 320px; text-align: center; }
         .login-box input { width: 100%; padding: 12px; margin: 10px 0; border: none; border-radius: 8px; }
         .login-box button { width: 100%; padding: 12px; border: none; border-radius: 8px; background: #00c6ff; color: white; font-weight: bold; cursor: pointer; }
 
         /* Dashboard */
         #dashboard { display: none; }
         nav { background: rgba(0,0,0,0.5); padding: 15px; display: flex; justify-content: space-around; position: sticky; top: 0; z-index: 100; }
-        nav button { background: transparent; border: 1px solid white; padding: 8px 12px; color: white; border-radius: 8px; cursor: pointer; font-size: 14px; }
+        nav button { background: transparent; border: 1px solid white; padding: 8px 12px; color: white; border-radius: 8px; cursor: pointer; }
         
-        .section { padding: 20px; display: none; max-width: 600px; margin: auto; }
+        .section { padding: 20px; display: none; width: 95%; margin: auto; }
         .active { display: block; }
         
-        .card { background: rgba(255,255,255,0.15); padding: 20px; border-radius: 15px; margin-top: 15px; backdrop-filter: blur(5px); }
-        input, select { width: 100%; padding: 10px; margin-top: 10px; border-radius: 8px; border: none; color: #333; }
+        .card { background: rgba(255,255,255,0.15); padding: 20px; border-radius: 15px; margin-top: 15px; }
+        input, select { padding: 10px; border-radius: 8px; border: none; margin: 5px; }
         
-        .add-btn { margin-top: 15px; width: 100%; padding: 12px; background: #00ff99; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: #111; }
+        /* Grid Table Styling */
+        .table-container { overflow-x: auto; margin-top: 20px; background: white; border-radius: 10px; }
+        table { width: 100%; border-collapse: collapse; color: #333; min-width: 800px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: center; font-size: 14px; }
+        th { background-color: #00ff00; color: black; font-weight: bold; }
+        .student-col { background-color: #ffff00; font-weight: bold; text-align: left; }
         
-        ul { list-style: none; margin-top: 20px; }
-        .record-item { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .del-btn { background: #ff4d4d; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
+        /* Row Colors (Matches your Image) */
+        .row-susu { background-color: #ff9900; }
+        .row-moe { background-color: #9900ff; color: white; }
+        .row-raymand { background-color: #00ffff; }
+        .row-sofia { background-color: #ff00ff; color: white; }
+        .row-sumyat { background-color: #93c47d; }
+        .row-thoon { background-color: #3d85c6; color: white; }
+
+        .add-btn { background: #00ff99; padding: 12px 25px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .delete-btn { background: #ff4d4d; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 10px; }
     </style>
 </head>
 <body>
@@ -42,132 +52,124 @@
         <input type="text" id="username" placeholder="Username">
         <input type="password" id="password" placeholder="Password">
         <button onclick="login()">Login</button>
-        <p id="error" style="color:#ff4d4d; margin-top:10px; font-size: 14px;"></p>
+        <p id="error" style="color:#ff4d4d; margin-top:10px;"></p>
     </div>
 </div>
 
 <div id="dashboard">
     <nav>
-        <button onclick="showSection('schedule')">📅 Schedule</button>
-        <button onclick="showSection('task')">✅ Task</button>
-        <button onclick="showSection('money')">💰 Saving</button>
+        <button onclick="showSection('schedule')">📅 Class Schedule</button>
+        <button onclick="showSection('task')">✅ Tasks</button>
         <button onclick="logout()">Logout</button>
     </nav>
 
     <div class="section active" id="inputArea">
         <div class="card">
-            <h3>Add New Entry</h3>
-            <input type="text" id="globalTitle" placeholder="Title/Activity">
-            <input type="date" id="globalDate">
-            <select id="globalType">
-                <option value="Schedule">Schedule</option>
-                <option value="Task">Task</option>
-                <option value="Money">Money Saving</option>
+            <h3>Add/Edit Class Time</h3>
+            <input type="text" id="studentName" placeholder="Student Name">
+            <select id="daySelect">
+                <option value="Monday">Monday</option>
+                <option value="Tuesday">Tuesday</option>
+                <option value="Wednesday">Wednesday</option>
+                <option value="Thursday">Thursday</option>
+                <option value="Friday">Friday</option>
+                <option value="Saturday">Saturday</option>
+                <option value="Sunday">Sunday</option>
             </select>
-            <button class="add-btn" onclick="addRecord()">Add to Hub</button>
+            <input type="text" id="timeRange" placeholder="e.g. 16:00 to 17:30">
+            <button class="add-btn" onclick="saveClass()">Save to Schedule</button>
         </div>
-    </div>
 
-    <div id="schedule" class="section">
-        <h2>Schedule</h2>
-        <div class="card" style="padding:0; overflow:hidden;">
-            <iframe src="https://calendar.google.com/calendar/embed?src=en.usa%23holiday%40group.v.calendar.google.com&ctz=America%2FNew_York" style="border: 0" width="100%" height="300" frameborder="0"></iframe>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="background:#ffff00">Student</th>
+                        <th>Monday</th>
+                        <th>Tuesday</th>
+                        <th>Wednesday</th>
+                        <th>Thursday</th>
+                        <th>Friday</th>
+                        <th>Saturday</th>
+                        <th>Sunday</th>
+                        <th style="background:#ff4d4d; color:white">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="scheduleBody">
+                    </tbody>
+            </table>
         </div>
-        <ul id="scheduleList"></ul>
-    </div>
-
-    <div id="task" class="section">
-        <h2>Task List</h2>
-        <ul id="taskList"></ul>
-    </div>
-
-    <div id="money" class="section">
-        <h2>Money Log</h2>
-        <ul id="moneyList"></ul>
     </div>
 </div>
 
 <script>
-// Login Logic
 function login() {
     let user = document.getElementById("username").value;
     let pass = document.getElementById("password").value;
-    
-    // Credentials: Mptzzlm / aishiteru
     if(user === "Mptzzlm" && pass === "aishiteru") {
         document.getElementById("loginPage").style.display = "none";
         document.getElementById("dashboard").style.display = "block";
-        loadData();
+        renderSchedule();
     } else {
-        document.getElementById("error").innerText = "Invalid Username or Password";
+        document.getElementById("error").innerText = "Wrong login!";
     }
 }
 
-const GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/1Y-57Rk1Y_nVXh7wfsddnMKZ1KDVjhsZjMwh0haUehTA/edit?gid=0#gid=0";
-
-function showSection(sectionId) {
-    // Hide all sections
-    document.querySelectorAll(".section").forEach(sec => sec.classList.remove("active"));
-    // Show selected section
-    document.getElementById(sectionId).classList.add("active");
-    // Always keep the input area visible
-    document.getElementById('inputArea').classList.add("active");
+function showSection(id) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
 }
 
-function addRecord() {
-    let title = document.getElementById("globalTitle").value;
-    let date = document.getElementById("globalDate").value;
-    let type = document.getElementById("globalType").value;
+function saveClass() {
+    const student = document.getElementById("studentName").value;
+    const day = document.getElementById("daySelect").value;
+    const time = document.getElementById("timeRange").value;
 
-    if(!title || !date) {
-        alert("Please enter both title and date");
-        return;
-    }
+    if(!student || !time) return alert("Fill Name and Time!");
 
-    let records = JSON.parse(localStorage.getItem("hub_records")) || [];
-    records.push({ title, date, type });
-    localStorage.setItem("hub_records", JSON.stringify(records));
+    let data = JSON.parse(localStorage.getItem("class_schedule")) || {};
+    
+    if(!data[student]) data[student] = {};
+    data[student][day] = time;
 
-    document.getElementById("globalTitle").value = "";
-    loadData();
+    localStorage.setItem("class_schedule", JSON.stringify(data));
+    renderSchedule();
 }
 
-function loadData() {
-    let records = JSON.parse(localStorage.getItem("hub_records")) || [];
-    
-    const sList = document.getElementById("scheduleList");
-    const tList = document.getElementById("taskList");
-    const mList = document.getElementById("moneyList");
-    
-    sList.innerHTML = tList.innerHTML = mList.innerHTML = "";
+function renderSchedule() {
+    const data = JSON.parse(localStorage.getItem("class_schedule")) || {};
+    const body = document.getElementById("scheduleBody");
+    body.innerHTML = "";
 
-    records.forEach((item, index) => {
-        let li = document.createElement("li");
-        li.className = "record-item";
-        li.innerHTML = `
-            <div>
-                <strong>${item.title}</strong><br>
-                <small>${item.date}</small>
-            </div>
-            <button class="del-btn" onclick="deleteRecord(${index})">Delete</button>
-        `;
+    const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
+    for (let student in data) {
+        let tr = document.createElement("tr");
         
-        if(item.type === "Schedule") sList.appendChild(li);
-        else if(item.type === "Task") tList.appendChild(li);
-        else if(item.type === "Money") mList.appendChild(li);
-    });
+        // Add a specific class based on student name for colors
+        let lowerName = student.toLowerCase().replace(/\s/g, '');
+        tr.classList.add("row-" + lowerName);
+
+        let html = `<td class="student-col">${student}</td>`;
+        
+        days.forEach(day => {
+            html += `<td>${data[student][day] || ""}</td>`;
+        });
+
+        html += `<td><button class="delete-btn" onclick="deleteStudent('${student}')">Delete Row</button></td>`;
+        tr.innerHTML = html;
+        body.appendChild(tr);
+    }
 }
 
-function deleteRecord(index) {
-    let records = JSON.parse(localStorage.getItem("hub_records")) || [];
-    records.splice(index, 1);
-    localStorage.setItem("hub_records", JSON.stringify(records));
-    loadData();
+function deleteStudent(name) {
+    let data = JSON.parse(localStorage.getItem("class_schedule"));
+    delete data[name];
+    localStorage.setItem("class_schedule", JSON.stringify(data));
+    renderSchedule();
 }
 
-function logout() {
-    location.reload();
-}
+function logout() { location.reload(); }
 </script>
 
 <script type="module">
