@@ -54,7 +54,10 @@
         <h2>Daily Hub</h2>
         <input type="text" id="username" placeholder="Username">
         <input type="password" id="password" placeholder="Password">
-        <enter="login()">
+        const handleEnter = (event) => {
+        if (event.key === "Enter") {
+            login();
+        }
         <button onclick="login()">Login</button>
         <p id="error" style="color:#ff4d4d; margin-top:10px;"></p>
     </div>
