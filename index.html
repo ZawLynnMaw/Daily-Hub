@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Our Daily Hub - Schedule Grid</title>
+    <title>Our Daily Hub - Professional Grid</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); color: white; min-height: 100vh; padding-bottom: 50px; }
@@ -11,37 +11,40 @@
         /* Login Page */
         #loginPage { height: 100vh; display: flex; justify-content: center; align-items: center; }
         .login-box { background: rgba(255,255,255,0.1); padding: 40px; border-radius: 15px; backdrop-filter: blur(10px); width: 320px; text-align: center; }
-        .login-box input { width: 100%; padding: 12px; margin: 10px 0; border: none; border-radius: 8px; }
-        .login-box button { width: 100%; padding: 12px; border: none; border-radius: 8px; background: #00c6ff; color: white; font-weight: bold; cursor: pointer; }
+        .login-box input { width: 100%; padding: 12px; margin: 10px 0; border: none; border-radius: 8px; outline: none; }
+        .login-box button { width: 100%; padding: 12px; border: none; border-radius: 8px; background: #00c6ff; color: white; font-weight: bold; cursor: pointer; transition: 0.3s; }
 
         /* Dashboard */
         #dashboard { display: none; }
-        nav { background: rgba(0,0,0,0.5); padding: 15px; display: flex; justify-content: space-around; position: sticky; top: 0; z-index: 100; }
-        nav button { background: transparent; border: 1px solid white; padding: 8px 12px; color: white; border-radius: 8px; cursor: pointer; }
+        nav { background: rgba(0,0,0,0.5); padding: 15px; display: flex; justify-content: space-around; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); }
+        nav button { background: transparent; border: 1px solid white; padding: 8px 12px; color: white; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+        nav button:hover { background: white; color: black; }
         
         .section { padding: 20px; display: none; width: 95%; margin: auto; }
         .active { display: block; }
         
         .card { background: rgba(255,255,255,0.15); padding: 20px; border-radius: 15px; margin-top: 15px; }
-        input, select { padding: 10px; border-radius: 8px; border: none; margin: 5px; }
+        input, select { padding: 10px; border-radius: 8px; border: none; margin: 5px; font-size: 14px; }
         
         /* Grid Table Styling */
-        .table-container { overflow-x: auto; margin-top: 20px; background: white; border-radius: 10px; }
-        table { width: 100%; border-collapse: collapse; color: #333; min-width: 800px; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: center; font-size: 14px; }
+        .table-container { overflow-x: auto; margin-top: 20px; background: white; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        table { width: 100%; border-collapse: collapse; color: #333; min-width: 900px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: center; font-size: 13px; }
         th { background-color: #00ff00; color: black; font-weight: bold; }
-        .student-col { background-color: #ffff00; font-weight: bold; text-align: left; }
+        .student-col { background-color: #ffff00 !important; font-weight: bold; text-align: left; }
         
-        /* Row Colors (Matches your Image) */
+        /* Simple List Styling for Tasks/Money */
+        .hub-list { list-style: none; margin-top: 15px; }
+        .hub-item { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #00c6ff; }
+
+        .add-btn { background: #00ff99; padding: 12px 25px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: #111; }
+        .delete-btn { background: #ff4d4d; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; }
+
+        /* Student Row Colors */
         .row-susu { background-color: #ff9900; }
-        .row-moe { background-color: #9900ff; color: white; }
+        .row-moeyati { background-color: #9900ff; color: white; }
         .row-raymand { background-color: #00ffff; }
         .row-sofia { background-color: #ff00ff; color: white; }
-        .row-sumyat { background-color: #93c47d; }
-        .row-thoon { background-color: #3d85c6; color: white; }
-
-        .add-btn { background: #00ff99; padding: 12px 25px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        .delete-btn { background: #ff4d4d; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 10px; }
     </style>
 </head>
 <body>
@@ -58,26 +61,25 @@
 
 <div id="dashboard">
     <nav>
-        <button onclick="showSection('schedule')">📅 Class Schedule</button>
-        <button onclick="showSection('task')">✅ Tasks</button>
+        <button onclick="showSection('schedule')">📅 Class Grid</button>
+        <button onclick="showSection('activity')">🏃 Activities</button>
+        <button onclick="showSection('saving')">💰 Money Saving</button>
         <button onclick="logout()">Logout</button>
     </nav>
 
-    <div class="section active" id="inputArea">
+    <div class="section active" id="schedule">
         <div class="card">
-            <h3>Add/Edit Class Time</h3>
+            <h3>Add Class Schedule</h3>
             <input type="text" id="studentName" placeholder="Student Name">
+            <input type="text" id="scheduleTitle" placeholder="Subject/Title (e.g. Math)">
             <select id="daySelect">
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
+                <option value="Monday">Monday</option><option value="Tuesday">Tuesday</option>
+                <option value="Wednesday">Wednesday</option><option value="Thursday">Thursday</option>
+                <option value="Friday">Friday</option><option value="Saturday">Saturday</option>
                 <option value="Sunday">Sunday</option>
             </select>
-            <input type="text" id="timeRange" placeholder="e.g. 16:00 to 17:30">
-            <button class="add-btn" onclick="saveClass()">Save to Schedule</button>
+            <input type="text" id="timeRange" placeholder="Time (e.g. 16:00 to 17:30)">
+            <button class="add-btn" onclick="saveClass()">Save to Grid</button>
         </div>
 
         <div class="table-container">
@@ -85,93 +87,146 @@
                 <thead>
                     <tr>
                         <th style="background:#ffff00">Student</th>
-                        <th>Monday</th>
-                        <th>Tuesday</th>
-                        <th>Wednesday</th>
-                        <th>Thursday</th>
-                        <th>Friday</th>
-                        <th>Saturday</th>
-                        <th>Sunday</th>
+                        <th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th>
+                        <th>Friday</th><th>Saturday</th><th>Sunday</th>
                         <th style="background:#ff4d4d; color:white">Action</th>
                     </tr>
                 </thead>
-                <tbody id="scheduleBody">
-                    </tbody>
+                <tbody id="scheduleBody"></tbody>
             </table>
         </div>
+    </div>
+
+    <div class="section" id="activity">
+        <div class="card">
+            <h3>Add Daily Activity</h3>
+            <input type="text" id="actTitle" placeholder="Activity Title (e.g. Gym)">
+            <input type="text" id="actNote" placeholder="Notes/Details">
+            <button class="add-btn" onclick="saveHubItem('activity')">Add Activity</button>
+        </div>
+        <ul id="activityList" class="hub-list"></ul>
+    </div>
+
+    <div class="section" id="saving">
+        <div class="card">
+            <h3>Add Saving Goal</h3>
+            <input type="text" id="saveTitle" placeholder="Saving For? (e.g. New Phone)">
+            <input type="text" id="saveAmount" placeholder="Amount (e.g. $500)">
+            <button class="add-btn" onclick="saveHubItem('saving')">Log Saving</button>
+        </div>
+        <ul id="savingList" class="hub-list"></ul>
     </div>
 </div>
 
 <script>
+// Authentication
 function login() {
     let user = document.getElementById("username").value;
     let pass = document.getElementById("password").value;
     if(user === "Mptzzlm" && pass === "aishiteru") {
         document.getElementById("loginPage").style.display = "none";
         document.getElementById("dashboard").style.display = "block";
-        renderSchedule();
+        renderAll();
     } else {
-        document.getElementById("error").innerText = "Wrong login!";
+        document.getElementById("error").innerText = "Login Failed!";
     }
 }
 
+// Navigation
 function showSection(id) {
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
 }
 
+// Logic for Grid (Schedule)
 function saveClass() {
-    const student = document.getElementById("studentName").value;
+    const name = document.getElementById("studentName").value;
+    const title = document.getElementById("scheduleTitle").value;
     const day = document.getElementById("daySelect").value;
     const time = document.getElementById("timeRange").value;
 
-    if(!student || !time) return alert("Fill Name and Time!");
+    if(!name || !time) return alert("Fill Name and Time!");
 
-    let data = JSON.parse(localStorage.getItem("class_schedule")) || {};
+    let data = JSON.parse(localStorage.getItem("grid_data")) || {};
+    if(!data[name]) data[name] = {};
     
-    if(!data[student]) data[student] = {};
-    data[student][day] = time;
+    // Store both Title and Time in the cell
+    data[name][day] = `<b>${title}</b><br>${time}`;
 
-    localStorage.setItem("class_schedule", JSON.stringify(data));
+    localStorage.setItem("grid_data", JSON.stringify(data));
     renderSchedule();
 }
 
 function renderSchedule() {
-    const data = JSON.parse(localStorage.getItem("class_schedule")) || {};
+    const data = JSON.parse(localStorage.getItem("grid_data")) || {};
     const body = document.getElementById("scheduleBody");
     body.innerHTML = "";
-
     const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
     for (let student in data) {
         let tr = document.createElement("tr");
-        
-        // Add a specific class based on student name for colors
-        let lowerName = student.toLowerCase().replace(/\s/g, '');
-        tr.classList.add("row-" + lowerName);
+        let safeName = student.toLowerCase().replace(/\s/g, '');
+        tr.classList.add("row-" + safeName);
 
         let html = `<td class="student-col">${student}</td>`;
-        
-        days.forEach(day => {
-            html += `<td>${data[student][day] || ""}</td>`;
-        });
-
-        html += `<td><button class="delete-btn" onclick="deleteStudent('${student}')">Delete Row</button></td>`;
+        days.forEach(day => { html += `<td>${data[student][day] || ""}</td>`; });
+        html += `<td><button class="delete-btn" onclick="deleteRow('${student}')">Delete</button></td>`;
         tr.innerHTML = html;
         body.appendChild(tr);
     }
 }
 
-function deleteStudent(name) {
-    let data = JSON.parse(localStorage.getItem("class_schedule"));
+// Logic for Activities and Savings
+function saveHubItem(type) {
+    const title = type === 'activity' ? document.getElementById("actTitle").value : document.getElementById("saveTitle").value;
+    const detail = type === 'activity' ? document.getElementById("actNote").value : document.getElementById("saveAmount").value;
+
+    if(!title) return;
+
+    let items = JSON.parse(localStorage.getItem(type + "_data")) || [];
+    items.push({ title, detail, id: Date.now() });
+    localStorage.setItem(type + "_data", JSON.stringify(items));
+    
+    renderHubList(type);
+}
+
+function renderHubList(type) {
+    const items = JSON.parse(localStorage.getItem(type + "_data")) || [];
+    const list = document.getElementById(type + "List");
+    list.innerHTML = "";
+
+    items.forEach(item => {
+        let li = document.createElement("li");
+        li.className = "hub-item";
+        li.innerHTML = `<div><strong>${item.title}</strong><br><small>${item.detail}</small></div>
+                        <button class="delete-btn" onclick="deleteItem('${type}', ${item.id})">Remove</button>`;
+        list.appendChild(li);
+    });
+}
+
+function deleteRow(name) {
+    let data = JSON.parse(localStorage.getItem("grid_data"));
     delete data[name];
-    localStorage.setItem("class_schedule", JSON.stringify(data));
+    localStorage.setItem("grid_data", JSON.stringify(data));
     renderSchedule();
+}
+
+function deleteItem(type, id) {
+    let items = JSON.parse(localStorage.getItem(type + "_data"));
+    items = items.filter(i => i.id !== id);
+    localStorage.setItem(type + "_data", JSON.stringify(items));
+    renderHubList(type);
+}
+
+function renderAll() {
+    renderSchedule();
+    renderHubList('activity');
+    renderHubList('saving');
 }
 
 function logout() { location.reload(); }
 </script>
-
+    
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
   import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-analytics.js";
