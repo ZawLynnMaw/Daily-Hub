@@ -331,162 +331,109 @@ function logout() { location.reload(); }
 </script>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-analytics.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyDLHBbVIsr4mu8PhnWM_n4XHuxJsGkiOpE",
-    authDomain: "zaw--lynn-maw.firebaseapp.com",
-    projectId: "zaw--lynn-maw",
-    storageBucket: "zaw--lynn-maw.firebasestorage.app",
-    messagingSenderId: "618191013506",
-    appId: "1:618191013506:web:2ba52ea74b6cbda0db969b",
-    measurementId: "G-BKYBXB6PGQ"
-  };
+    const firebaseConfig = {
+        apiKey: "AIzaSyDLHBbVIsr4mu8PhnWM_n4XHuxJsGkiOpE",
+        authDomain: "zaw--lynn-maw.firebaseapp.com",
+        projectId: "zaw--lynn-maw",
+        storageBucket: "zaw--lynn-maw.firebasestorage.app",
+        messagingSenderId: "618191013506",
+        appId: "1:618191013506:web:2ba52ea74b6cbda0db969b"
+    };
 
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-  const db = getFirestore(app);
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-window.login = function() {
-    let user = document.getElementById("username").value;
-    let pass = document.getElementById("password").value;
-
-    if(user === "Mptzzlm" && pass === "aishiteru") {
-        document.getElementById("loginPage").style.display = "none";
-        document.getElementById("dashboard").style.display = "block";
-        startRealtimeListeners();
-    } else {
-        document.getElementById("error").innerText = "Not today, stranger ❤️";
-    }
-};
-
-window.logout = function() {
-    location.reload();
-};
-
-window.showSection = function(id) {
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-};
-
-window.saveClass = async function() {
-    const name = document.getElementById("studentName").value;
-    const title = document.getElementById("scheduleTitle").value;
-    const day = document.getElementById("daySelect").value;
-    const time = document.getElementById("timeRange").value;
-
-    if(!name || !time) return alert("Fill Name and Time!");
-
-    await addDoc(collection(db, "schedule"), {
-        name, title, day, time
-    });
-
-    document.getElementById("studentName").value = "";
-    document.getElementById("scheduleTitle").value = "";
-    document.getElementById("timeRange").value = "";
-};
-
-window.saveHubItem = async function(type) {
-
-    const titleField = type === 'activity' 
-        ? document.getElementById("actTitle") 
-        : document.getElementById("saveTitle");
-
-    const detailField = type === 'activity' 
-        ? document.getElementById("actNote") 
-        : document.getElementById("saveAmount");
-
-    if(!titleField.value || !detailField.value) 
-        return alert("Fill all fields!");
-
-    await addDoc(collection(db, type), {
-        title: titleField.value,
-        detail: detailField.value
-    });
-
-    titleField.value = "";
-    detailField.value = "";
-};
-
-window.deleteItem = async function(type, id) {
-    await deleteDoc(doc(db, type, id));
-};
-
-function startRealtimeListeners() {
-
-    /* Schedule */
-    onSnapshot(collection(db, "schedule"), (snapshot) => {
-        const body = document.getElementById("scheduleBody");
-        body.innerHTML = "";
-
-        const days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
-        let students = {};
-
-        snapshot.forEach(docSnap => {
-            const data = docSnap.data();
-            if(!students[data.name]) students[data.name] = {};
-            students[data.name][data.day] =
-                `<b>${data.title}</b><br>${data.time}
-                 <br><button onclick="deleteItem('schedule','${docSnap.id}')">Delete</button>`;
-        });
-
-        for (let student in students) {
-            let tr = document.createElement("tr");
-            let html = `<td class="student-col">${student}</td>`;
-            days.forEach(day => {
-                html += `<td>${students[student][day] || ""}</td>`;
-            });
-            tr.innerHTML = html;
-            body.appendChild(tr);
+    // Login logic
+    window.login = () => {
+        let user = document.getElementById("username").value;
+        let pass = document.getElementById("password").value;
+        if(user === "Mptzzlm" && pass === "aishiteru") {
+            document.getElementById("loginPage").style.display = "none";
+            document.getElementById("dashboard").style.display = "block";
+            startListeners();
+        } else {
+            document.getElementById("error").innerText = "Not today, stranger. ❤️";
         }
-    });
+    };
 
-    /* Activity */
-    onSnapshot(collection(db, "activity"), (snapshot) => {
-        const list = document.getElementById("activityList");
-        list.innerHTML = "";
+    window.logout = () => location.reload();
+    window.showSection = (id) => {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    };
 
-        snapshot.forEach(docSnap => {
-            const item = docSnap.data();
-            let li = document.createElement("li");
-            li.className = "hub-item";
-            li.innerHTML = `
-                <div>
-                    <strong>${item.title}</strong><br>
-                    <small>${item.detail}</small>
-                </div>
-                <button onclick="deleteItem('activity','${docSnap.id}')">Remove</button>
-            `;
-            list.appendChild(li);
+    // Save functions
+    window.saveClass = async () => {
+        const name = document.getElementById("studentName").value;
+        const title = document.getElementById("scheduleTitle").value;
+        const day = document.getElementById("daySelect").value;
+        const time = document.getElementById("timeRange").value;
+        if(!name || !time) return alert("Fill Name and Time!");
+        await addDoc(collection(db, "schedule"), { name, title, day, time });
+        document.getElementById("scheduleTitle").value = "";
+        document.getElementById("timeRange").value = "";
+    };
+
+    window.saveHubItem = async (type) => {
+        const tField = type === 'activity' ? document.getElementById("actTitle") : document.getElementById("saveTitle");
+        const dField = type === 'activity' ? document.getElementById("actNote") : document.getElementById("saveAmount");
+        if(!tField.value || !dField.value) return alert("Fill fields!");
+        await addDoc(collection(db, type), { title: tField.value, detail: dField.value });
+        tField.value = ""; dField.value = "";
+    };
+
+    window.deleteItem = async (type, id) => await deleteDoc(doc(db, type, id));
+
+    // Real-time Listeners (This makes other devices see changes instantly)
+    function startListeners() {
+        onSnapshot(collection(db, "schedule"), (snapshot) => {
+            const body = document.getElementById("scheduleBody");
+            body.innerHTML = "";
+            const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+            let students = {};
+            snapshot.forEach(d => {
+                const data = d.data();
+                if(!students[data.name]) students[data.name] = {};
+                students[data.name][data.day] = `<b>${data.title}</b><br>${data.time}<br><button class="delete-btn" onclick="deleteItem('schedule','${d.id}')">X</button>`;
+            });
+            for (let s in students) {
+                let tr = document.createElement("tr");
+                let html = `<td class="student-col">${s}</td>`;
+                days.forEach(day => html += `<td>${students[s][day] || ""}</td>`);
+                tr.innerHTML = html;
+                body.appendChild(tr);
+            }
         });
-    });
 
-    /* Saving */
-    onSnapshot(collection(db, "saving"), (snapshot) => {
-        const list = document.getElementById("savingList");
-        list.innerHTML = "";
-        let total = 0;
-
-        snapshot.forEach(docSnap => {
-            const item = docSnap.data();
-            total += parseFloat(item.detail || 0);
-
-            let li = document.createElement("li");
-            li.className = "hub-item";
-            li.innerHTML = `
-                <div>
-                    <strong>${item.title}</strong><br>
-                    <small>$${item.detail}</small>
-                </div>
-                <button onclick="deleteItem('saving','${docSnap.id}')">Remove</button>
-            `;
-            list.appendChild(li);
+        ['activity', 'saving'].forEach(type => {
+            onSnapshot(collection(db, type), (snapshot) => {
+                const list = document.getElementById(type + "List");
+                list.innerHTML = "";
+                let total = 0;
+                snapshot.forEach(d => {
+                    const item = d.data();
+                    if(type === 'saving') total += parseFloat(item.detail || 0);
+                    let li = document.createElement("li");
+                    li.className = "hub-item";
+                    li.innerHTML = `<div><strong>${item.title}</strong><br><small>${type==='saving'?'$':''}${item.detail}</small></div>
+                                    <button class="delete-btn" onclick="deleteItem('${type}','${d.id}')">Remove</button>`;
+                    list.appendChild(li);
+                });
+                if(type === 'saving') document.getElementById("totalAmountDisplay").innerText = total.toLocaleString();
+            });
         });
+    }
 
-        document.getElementById("totalAmountDisplay").innerText = total.toLocaleString();
-    });
-}
+    // Background hearts
+    const lp = document.getElementById('loginPage');
+    for(let i=0; i<15; i++) {
+        const h = document.createElement('div'); h.className = 'bg-heart'; h.innerText = '❤';
+        h.style.left = Math.random() * 100 + 'vw'; h.style.animationDuration = (Math.random()*5+5)+'s';
+        lp.appendChild(h);
+    }
 </script>
 </body>
 </html>
