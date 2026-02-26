@@ -331,12 +331,8 @@ function logout() { location.reload(); }
 </script>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-analytics.js";
-import { 
-  getFirestore, collection, addDoc, getDocs, 
-  deleteDoc, doc, onSnapshot 
-} from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-analytics.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDLHBbVIsr4mu8PhnWM_n4XHuxJsGkiOpE",
@@ -348,9 +344,9 @@ import {
     measurementId: "G-BKYBXB6PGQ"
   };
 
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-const db = getFirestore(app);
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  const db = getFirestore(app);
 
 /* ---------------- LOGIN ---------------- */
 window.login = function() {
