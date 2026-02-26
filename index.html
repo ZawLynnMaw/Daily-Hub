@@ -347,6 +347,61 @@ function logout() { location.reload(); }
   const app = initializeApp(firebaseConfig);
   const analytics = getAnalytics(app);
   const db = getFirestore(app);
+
+    window.saveHubItem = async function(type) {
+
+    const titleField = type === 'activity'
+        ? document.getElementById("actTitle")
+        : document.getElementById("saveTitle");
+
+    const detailField = type === 'activity'
+        ? document.getElementById("actNote")
+        : document.getElementById("saveAmount");
+
+    if(!titleField.value || !detailField.value)
+        return alert("Fill all fields!");
+
+    await addDoc(collection(db, type), {
+        title: titleField.value,
+        detail: detailField.value,
+        createdAt: new Date()
+    });
+
+    titleField.value = "";
+    detailField.value = "";
+};
+    
+    function startRealtimeListeners() {
+
+    onSnapshot(collection(db, "activity"), (snapshot) => {
+
+        const list = document.getElementById("activityList");
+        list.innerHTML = "";
+
+        snapshot.forEach(docSnap => {
+            const item = docSnap.data();
+
+            let li = document.createElement("li");
+            li.className = "hub-item";
+
+            li.innerHTML = `
+                <div>
+                    <strong>${item.title}</strong><br>
+                    <small>${item.detail}</small>
+                </div>
+                <button onclick="deleteItem('activity','${docSnap.id}')">
+                    Remove
+                </button>
+            `;
+
+            list.appendChild(li);
+        });
+    });
+}
+    
+    window.deleteItem = async function(type, id) {
+    await deleteDoc(doc(db, type, id));
+};
     
     window.login = () => {
         let user = document.getElementById("username").value;
