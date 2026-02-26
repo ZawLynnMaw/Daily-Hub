@@ -1,3 +1,7 @@
+I've updated your code to include the Total Savings Display, integrated the Enter Key login functionality, and ensured your student row colors match your previous request.
+
+Fixed & Updated Code
+HTML
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -33,7 +37,10 @@
         th { background-color: #00ff00; color: black; font-weight: bold; }
         .student-col { background-color: #ffff00 !important; font-weight: bold; text-align: left; }
         
-        /* Simple List Styling for Tasks/Money */
+        /* Total Box */
+        .total-box { background: #00ff99; color: #111; padding: 15px; border-radius: 12px; text-align: center; font-size: 22px; font-weight: bold; margin-bottom: 15px; }
+
+        /* List Styling */
         .hub-list { list-style: none; margin-top: 15px; }
         .hub-item { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #00c6ff; }
 
@@ -71,7 +78,7 @@
         <div class="card">
             <h3>Add Class Schedule</h3>
             <input type="text" id="studentName" placeholder="Student Name">
-            <input type="text" id="scheduleTitle" placeholder="Subject/Title (e.g. Math)">
+            <input type="text" id="scheduleTitle" placeholder="Subject/Title">
             <select id="daySelect">
                 <option value="Monday">Monday</option><option value="Tuesday">Tuesday</option>
                 <option value="Wednesday">Wednesday</option><option value="Thursday">Thursday</option>
@@ -81,7 +88,6 @@
             <input type="text" id="timeRange" placeholder="Time (e.g. 16:00 to 17:30)">
             <button class="add-btn" onclick="saveClass()">Save to Grid</button>
         </div>
-
         <div class="table-container">
             <table>
                 <thead>
@@ -89,7 +95,7 @@
                         <th style="background:#ffff00">Student</th>
                         <th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th>
                         <th>Friday</th><th>Saturday</th><th>Sunday</th>
-                        <th style="background:#ff4d4d; color:white">Action</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody id="scheduleBody"></tbody>
@@ -100,7 +106,7 @@
     <div class="section" id="activity">
         <div class="card">
             <h3>Add Daily Activity</h3>
-            <input type="text" id="actTitle" placeholder="Activity Title (e.g. Gym)">
+            <input type="text" id="actTitle" placeholder="Activity Title">
             <input type="text" id="actNote" placeholder="Notes/Details">
             <button class="add-btn" onclick="saveHubItem('activity')">Add Activity</button>
         </div>
@@ -108,10 +114,11 @@
     </div>
 
     <div class="section" id="saving">
+        <div class="total-box">Total Savings: <span id="totalAmountDisplay">0</span></div>
         <div class="card">
             <h3>Add Saving Goal</h3>
-            <input type="text" id="saveTitle" placeholder="Saving For? (e.g. New Phone)">
-            <input type="text" id="saveAmount" placeholder="Amount (e.g. $500)">
+            <input type="text" id="saveTitle" placeholder="Saving Title">
+            <input type="number" id="saveAmount" placeholder="Amount (Numbers only)">
             <button class="add-btn" onclick="saveHubItem('saving')">Log Saving</button>
         </div>
         <ul id="savingList" class="hub-list"></ul>
@@ -119,7 +126,14 @@
 </div>
 
 <script>
-// Authentication
+// Enter Key Login Support
+document.addEventListener("DOMContentLoaded", () => {
+    const inputs = [document.getElementById("username"), document.getElementById("password")];
+    inputs.forEach(input => {
+        input.addEventListener("keypress", (e) => { if (e.key === "Enter") login(); });
+    });
+});
+
 function login() {
     let user = document.getElementById("username").value;
     let pass = document.getElementById("password").value;
@@ -132,27 +146,21 @@ function login() {
     }
 }
 
-// Navigation
 function showSection(id) {
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
 }
 
-// Logic for Grid (Schedule)
 function saveClass() {
     const name = document.getElementById("studentName").value;
     const title = document.getElementById("scheduleTitle").value;
     const day = document.getElementById("daySelect").value;
     const time = document.getElementById("timeRange").value;
-
     if(!name || !time) return alert("Fill Name and Time!");
 
     let data = JSON.parse(localStorage.getItem("grid_data")) || {};
     if(!data[name]) data[name] = {};
-    
-    // Store both Title and Time in the cell
     data[name][day] = `<b>${title}</b><br>${time}`;
-
     localStorage.setItem("grid_data", JSON.stringify(data));
     renderSchedule();
 }
@@ -167,7 +175,6 @@ function renderSchedule() {
         let tr = document.createElement("tr");
         let safeName = student.toLowerCase().replace(/\s/g, '');
         tr.classList.add("row-" + safeName);
-
         let html = `<td class="student-col">${student}</td>`;
         days.forEach(day => { html += `<td>${data[student][day] || ""}</td>`; });
         html += `<td><button class="delete-btn" onclick="deleteRow('${student}')">Delete</button></td>`;
@@ -176,17 +183,18 @@ function renderSchedule() {
     }
 }
 
-// Logic for Activities and Savings
 function saveHubItem(type) {
-    const title = type === 'activity' ? document.getElementById("actTitle").value : document.getElementById("saveTitle").value;
-    const detail = type === 'activity' ? document.getElementById("actNote").value : document.getElementById("saveAmount").value;
+    const titleField = type === 'activity' ? document.getElementById("actTitle") : document.getElementById("saveTitle");
+    const detailField = type === 'activity' ? document.getElementById("actNote") : document.getElementById("saveAmount");
 
-    if(!title) return;
+    if(!titleField.value || !detailField.value) return alert("Fill all fields!");
 
     let items = JSON.parse(localStorage.getItem(type + "_data")) || [];
-    items.push({ title, detail, id: Date.now() });
+    items.push({ title: titleField.value, detail: detailField.value, id: Date.now() });
     localStorage.setItem(type + "_data", JSON.stringify(items));
     
+    titleField.value = "";
+    detailField.value = "";
     renderHubList(type);
 }
 
@@ -194,14 +202,18 @@ function renderHubList(type) {
     const items = JSON.parse(localStorage.getItem(type + "_data")) || [];
     const list = document.getElementById(type + "List");
     list.innerHTML = "";
+    let total = 0;
 
     items.forEach(item => {
+        if(type === 'saving') total += parseFloat(item.detail || 0);
         let li = document.createElement("li");
         li.className = "hub-item";
-        li.innerHTML = `<div><strong>${item.title}</strong><br><small>${item.detail}</small></div>
+        li.innerHTML = `<div><strong>${item.title}</strong><br><small>${type === 'saving' ? '$' : ''}${item.detail}</small></div>
                         <button class="delete-btn" onclick="deleteItem('${type}', ${item.id})">Remove</button>`;
         list.appendChild(li);
     });
+
+    if(type === 'saving') document.getElementById("totalAmountDisplay").innerText = total.toLocaleString();
 }
 
 function deleteRow(name) {
@@ -218,15 +230,10 @@ function deleteItem(type, id) {
     renderHubList(type);
 }
 
-function renderAll() {
-    renderSchedule();
-    renderHubList('activity');
-    renderHubList('saving');
-}
-
+function renderAll() { renderSchedule(); renderHubList('activity'); renderHubList('saving'); }
 function logout() { location.reload(); }
 </script>
-    
+ 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
   import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-analytics.js";
