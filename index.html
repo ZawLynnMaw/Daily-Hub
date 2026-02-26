@@ -329,6 +329,7 @@ function deleteItem(type, id) {
 function renderAll() { renderSchedule(); renderHubList('activity'); renderHubList('saving'); }
 function logout() { location.reload(); }
 </script>
+</body>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
@@ -347,6 +348,4 @@ function logout() { location.reload(); }
   const app = initializeApp(firebaseConfig);
   const analytics = getAnalytics(app);
 </script>
-
-</body>
 </html>
