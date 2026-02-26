@@ -331,10 +331,14 @@ function logout() { location.reload(); }
 </script>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-analytics.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-analytics.js";
+import { 
+  getFirestore, collection, addDoc, getDocs, 
+  deleteDoc, doc, onSnapshot 
+} from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
-  const firebaseConfig = {
+   const firebaseConfig = {
     apiKey: "AIzaSyDLHBbVIsr4mu8PhnWM_n4XHuxJsGkiOpE",
     authDomain: "zaw--lynn-maw.firebaseapp.com",
     projectId: "zaw--lynn-maw",
@@ -348,7 +352,6 @@ function logout() { location.reload(); }
   const analytics = getAnalytics(app);
   const db = getFirestore(app);
 
-/* ---------------- LOGIN ---------------- */
 window.login = function() {
     let user = document.getElementById("username").value;
     let pass = document.getElementById("password").value;
@@ -371,7 +374,6 @@ window.showSection = function(id) {
     document.getElementById(id).classList.add('active');
 };
 
-/* ---------------- SAVE CLASS ---------------- */
 window.saveClass = async function() {
     const name = document.getElementById("studentName").value;
     const title = document.getElementById("scheduleTitle").value;
@@ -389,7 +391,6 @@ window.saveClass = async function() {
     document.getElementById("timeRange").value = "";
 };
 
-/* ---------------- SAVE ACTIVITY / SAVING ---------------- */
 window.saveHubItem = async function(type) {
 
     const titleField = type === 'activity' 
@@ -412,12 +413,10 @@ window.saveHubItem = async function(type) {
     detailField.value = "";
 };
 
-/* ---------------- DELETE ---------------- */
 window.deleteItem = async function(type, id) {
     await deleteDoc(doc(db, type, id));
 };
 
-/* ---------------- REALTIME LISTENERS ---------------- */
 function startRealtimeListeners() {
 
     /* Schedule */
