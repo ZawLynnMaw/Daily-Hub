@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Our Life Activities - Sync Edition</title>
     <style>
-        /* CSS remains largely the same for the beautiful UI */
+        /* All your beautiful original CSS remains the same */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { background: #0a0a0a; color: white; min-height: 100vh; padding-bottom: 50px; }
         #loginPage { height: 100vh; display: flex; justify-content: center; align-items: center; background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%); position: relative; overflow: hidden; }
@@ -14,7 +14,7 @@
         .login-box { background: rgba(20, 20, 20, 0.8); padding: 45px 35px; border-radius: 25px; backdrop-filter: blur(15px); width: 340px; text-align: center; border: 1px solid #333; box-shadow: 0 0 40px rgba(255, 0, 0, 0.15); z-index: 10; }
         .main-heart { font-size: 50px; color: #ff0033; display: inline-block; margin-bottom: 15px; text-shadow: 0 0 20px #ff0033; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
-        .login-box input { width: 100%; padding: 14px; margin: 12px 0; border: 1px solid #222; border-radius: 12px; background: #111; color: white; text-align: center; outline: none; }
+        .login-box input { width: 100%; padding: 14px; margin: 12px 0; border: 1px solid #222; border-radius: 12px; background: #111; color: white; text-align: center; }
         .login-box button { width: 100%; padding: 14px; margin-top: 15px; border: none; border-radius: 12px; background: #ff0033; color: white; font-weight: bold; cursor: pointer; }
         #dashboard { display: none; background: #0f2027; min-height: 100vh; }
         nav { background: rgba(0,0,0,0.8); padding: 15px; display: flex; justify-content: space-around; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); }
@@ -27,10 +27,11 @@
         table { width: 100%; border-collapse: collapse; color: #333; min-width: 900px; }
         th, td { border: 1px solid #ddd; padding: 12px; text-align: center; font-size: 13px; }
         th { background-color: #00ff00; color: black; font-weight: bold; }
-        .student-col { background-color: #ffff00 !important; font-weight: bold; text-align: left; }
+        .student-col { background-color: #ffff00 !important; font-weight: bold; }
         .total-box { background: #ff0033; color: white; padding: 15px; border-radius: 12px; text-align: center; font-size: 22px; font-weight: bold; margin-bottom: 15px; }
         .hub-item { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #ff0033; }
-        .delete-btn { background: #ff4d4d; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; }
+        .delete-btn { background: #ff4d4d; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; }
+        .add-btn { background: #ff0033; padding: 12px 25px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; }
     </style>
 </head>
 <body>
@@ -39,11 +40,10 @@
     <div class="login-box">
         <div class="main-heart">❤</div>
         <h2>Life Activities</h2>
-        <p style="color: #666; font-size: 13px; margin-bottom: 15px;">Love Together, Mptzzlm</p>
         <input type="text" id="username" placeholder="Username">
         <input type="password" id="password" placeholder="Password">
-        <button id="loginBtn">Enter Our World</button>
-        <p id="error" style="color:#ff0033; margin-top:10px; font-size: 13px;"></p>
+        <button onclick="login()">Enter Our World</button>
+        <p id="error" style="color:#ff0033; margin-top:10px;"></p>
     </div>
 </div>
 
@@ -52,7 +52,7 @@
         <button onclick="showSection('schedule')">📅 Class Grid</button>
         <button onclick="showSection('activity')">🏃 Activities</button>
         <button onclick="showSection('saving')">💰 Saving</button>
-        <button onclick="location.reload()">Logout</button>
+        <button onclick="logout()">Logout</button>
     </nav>
 
     <div class="section active" id="schedule">
@@ -67,7 +67,7 @@
                 <option value="Sunday">Sunday</option>
             </select>
             <input type="text" id="timeRange" placeholder="Time (e.g. 16:00 to 17:30)">
-            <button class="add-btn" id="saveClassBtn">Save to Cloud</button>
+            <button class="add-btn" onclick="saveClass()">Save to Cloud</button>
         </div>
         <div class="table-container">
             <table>
@@ -88,7 +88,7 @@
             <h3>Add Daily Activity</h3>
             <input type="text" id="actTitle" placeholder="Activity Title">
             <input type="text" id="actNote" placeholder="Notes/Details">
-            <button class="add-btn" id="saveActBtn">Add Activity</button>
+            <button class="add-btn" onclick="saveHubItem('activity')">Add Activity</button>
         </div>
         <ul id="activityList" class="hub-list"></ul>
     </div>
@@ -99,16 +99,21 @@
             <h3>Add Saving Goal</h3>
             <input type="text" id="saveTitle" placeholder="Saving Title">
             <input type="number" id="saveAmount" placeholder="Amount">
-            <button class="add-btn" id="saveSaveBtn">Log Saving</button>
+            <button class="add-btn" onclick="saveHubItem('saving')">Log Saving</button>
         </div>
         <ul id="savingList" class="hub-list"></ul>
     </div>
 </div>
-    
+
 <script type="module">
+  // Import the functions you need from the SDKs you need
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
   import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
 
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
   const firebaseConfig = {
     apiKey: "AIzaSyDLHBbVIsr4mu8PhnWM_n4XHuxJsGkiOpE",
     authDomain: "zaw--lynn-maw.firebaseapp.com",
@@ -119,84 +124,93 @@
     measurementId: "G-BKYBXB6PGQ"
   };
 
+  // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const analytics = getAnalytics(app);
-  const db = getFirestore(app);
 
-    // --- GLOBAL FUNCTIONS ---
-    window.showSection = (id) => {
-        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-    };
-
-    window.deleteItem = async (type, id) => {
-        await deleteDoc(doc(db, type, id));
-    };
-
-    // --- LOGIN ---
-    document.getElementById("loginBtn").onclick = () => {
+    // --- GLOBAL WINDOW FUNCTIONS ---
+    window.login = () => {
         let user = document.getElementById("username").value;
         let pass = document.getElementById("password").value;
         if(user === "Mptzzlm" && pass === "aishiteru") {
             document.getElementById("loginPage").style.display = "none";
             document.getElementById("dashboard").style.display = "block";
-            startRealtimeSync();
+            startRealtimeListeners();
         } else {
             document.getElementById("error").innerText = "Not today, stranger. ❤️";
         }
     };
 
-    // --- SAVE TO CLOUD ---
-    document.getElementById("saveClassBtn").onclick = async () => {
+    window.logout = () => location.reload();
+
+    window.showSection = (id) => {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    };
+
+    window.saveClass = async () => {
         const name = document.getElementById("studentName").value;
         const title = document.getElementById("scheduleTitle").value;
         const day = document.getElementById("daySelect").value;
         const time = document.getElementById("timeRange").value;
         if(!name || !time) return alert("Fill Name and Time!");
-        await addDoc(collection(db, "schedule"), { name, title, day, time });
+        
+        try {
+            await addDoc(collection(db, "schedule"), { name, title, day, time });
+            document.getElementById("scheduleTitle").value = "";
+            document.getElementById("timeRange").value = "";
+        } catch (e) { alert("Error saving class"); }
     };
 
-    document.getElementById("saveActBtn").onclick = () => saveHubItem('activity');
-    document.getElementById("saveSaveBtn").onclick = () => saveHubItem('saving');
-
-    async function saveHubItem(type) {
+    window.saveHubItem = async (type) => {
         const tField = type === 'activity' ? document.getElementById("actTitle") : document.getElementById("saveTitle");
         const dField = type === 'activity' ? document.getElementById("actNote") : document.getElementById("saveAmount");
         if(!tField.value || !dField.value) return alert("Fill all fields!");
-        await addDoc(collection(db, type), { title: tField.value, detail: dField.value });
-        tField.value = ""; dField.value = "";
-    }
+        
+        try {
+            await addDoc(collection(db, type), { title: tField.value, detail: dField.value });
+            tField.value = ""; dField.value = "";
+        } catch (e) { alert("Error saving data"); }
+    };
 
-    // --- REAL-TIME SYNC (THE MAGIC PART) ---
-    function startRealtimeSync() {
-        // Sync Schedule
+    window.deleteItem = async (type, id) => {
+        if(confirm("Are you sure you want to remove this?")) {
+            await deleteDoc(doc(db, type, id));
+        }
+    };
+
+    // --- REAL-TIME LISTENERS (THIS CHANGES DATA FOR EVERYONE) ---
+    function startRealtimeListeners() {
+        // Listen for Schedule Changes
         onSnapshot(collection(db, "schedule"), (snapshot) => {
             const body = document.getElementById("scheduleBody");
             body.innerHTML = "";
             const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
             let students = {};
-            
+
             snapshot.forEach(docSnap => {
                 const data = docSnap.data();
                 if(!students[data.name]) students[data.name] = {};
-                students[data.name][data.day] = `<b>${data.title}</b><br>${data.time}<br><button class="delete-btn" onclick="deleteItem('schedule','${docSnap.id}')">Delete</button>`;
+                // Storing HTML with the Doc ID so we can delete it specifically
+                students[data.name][data.day] = `<b>${data.title}</b><br>${data.time}<br><button class="delete-btn" style="font-size:10px" onclick="deleteItem('schedule','${docSnap.id}')">Delete</button>`;
             });
 
-            for (let name in students) {
+            for (let s in students) {
                 let tr = document.createElement("tr");
-                let html = `<td class="student-col">${name}</td>`;
-                days.forEach(day => html += `<td>${students[name][day] || ""}</td>`);
+                let html = `<td class="student-col">${s}</td>`;
+                days.forEach(day => html += `<td>${students[s][day] || ""}</td>`);
                 tr.innerHTML = html;
                 body.appendChild(tr);
             }
         });
 
-        // Sync Activities & Savings
+        // Listen for Activities and Savings
         ['activity', 'saving'].forEach(type => {
             onSnapshot(collection(db, type), (snapshot) => {
                 const list = document.getElementById(type + "List");
                 list.innerHTML = "";
                 let total = 0;
+
                 snapshot.forEach(docSnap => {
                     const item = docSnap.data();
                     if(type === 'saving') total += parseFloat(item.detail || 0);
@@ -206,19 +220,18 @@
                                     <button class="delete-btn" onclick="deleteItem('${type}','${docSnap.id}')">Remove</button>`;
                     list.appendChild(li);
                 });
+
                 if(type === 'saving') document.getElementById("totalAmountDisplay").innerText = total.toLocaleString();
             });
         });
     }
 
-    // Floating Hearts Init
+    // Animation Init
     const lp = document.getElementById('loginPage');
     for(let i=0; i<15; i++) {
-        const heart = document.createElement('div');
-        heart.className = 'bg-heart'; heart.innerText = '❤';
-        heart.style.left = Math.random() * 100 + 'vw';
-        heart.style.animationDuration = (Math.random() * 5 + 5) + 's';
-        lp.appendChild(heart);
+        const h = document.createElement('div'); h.className = 'bg-heart'; h.innerText = '❤';
+        h.style.left = Math.random() * 100 + 'vw'; h.style.animationDuration = (Math.random()*5+5)+'s';
+        lp.appendChild(h);
     }
 </script>
 </body>
