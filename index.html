@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -211,46 +210,6 @@
 </div>
 
 <script>
-// Create floating background hearts
-const loginPage = document.getElementById('loginPage');
-for(let i=0; i<15; i++) {
-    const heart = document.createElement('div');
-    heart.className = 'bg-heart';
-    heart.innerText = '❤';
-    heart.style.left = Math.random() * 100 + 'vw';
-    heart.style.animationDuration = (Math.random() * 5 + 5) + 's';
-    heart.style.animationDelay = Math.random() * 5 + 's';
-    loginPage.appendChild(heart);
-}
-
-// Enter Key Login Support
-document.addEventListener("DOMContentLoaded", () => {
-    const inputs = [document.getElementById("username"), document.getElementById("password")];
-    inputs.forEach(input => {
-        input.addEventListener("keypress", (e) => { if (e.key === "Enter") login(); });
-    });
-});
-
-function login() {
-    let user = document.getElementById("username").value;
-    let pass = document.getElementById("password").value;
-    if(user === "Mptzzlm" && pass === "aishiteru") {
-        document.getElementById("loginPage").style.display = "none";
-        document.getElementById("dashboard").style.display = "block";
-        renderAll();
-    } else {
-        document.getElementById("error").innerText = "Not today, stranger. ❤️";
-    }
-}
-
-function showSection(id) {
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-}
-
-function renderAll() { renderSchedule(); renderHubList('activity'); renderHubList('saving'); }
-function logout() { location.reload(); }
-</script>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
@@ -269,99 +228,135 @@ function logout() { location.reload(); }
   const app = initializeApp(firebaseConfig);
   const analytics = getAnalytics(app);
   const db = getFirestore(app);
-    
- /* ---------- NAVIGATION ---------- */
+
+/* ================= FLOATING HEARTS ================= */
+const loginPage = document.getElementById('loginPage');
+for(let i=0;i<15;i++){
+    const heart=document.createElement('div');
+    heart.className='bg-heart';
+    heart.innerText='❤';
+    heart.style.left=Math.random()*100+'vw';
+    heart.style.animationDuration=(Math.random()*5+5)+'s';
+    loginPage.appendChild(heart);
+}
+
+/* ================= LOGIN ================= */
+window.login = function(){
+    const user = document.getElementById("username").value;
+    const pass = document.getElementById("password").value;
+
+    if(user==="Mptzzlm" && pass==="aishiteru"){
+        document.getElementById("loginPage").style.display="none";
+        document.getElementById("dashboard").style.display="block";
+        startListeners();
+    } else {
+        document.getElementById("error").innerText="Not today, stranger ❤️";
+    }
+};
+
+window.logout = () => location.reload();
+
 window.showSection = function(id){
-document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-document.getElementById(id).classList.add('active');
+    document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+};
+
+/* ================= SAVE CLASS ================= */
+window.saveClass = async function(){
+    const name=document.getElementById("studentName").value;
+    const title=document.getElementById("scheduleTitle").value;
+    const day=document.getElementById("daySelect").value;
+    const time=document.getElementById("timeRange").value;
+
+    if(!name||!time) return alert("Fill Name & Time");
+
+    await addDoc(collection(db,"schedule"),{name,title,day,time});
+
+    document.getElementById("scheduleTitle").value="";
+    document.getElementById("timeRange").value="";
+};
+
+/* ================= SAVE ACTIVITY / SAVING ================= */
+window.saveHubItem = async function(type){
+    const titleField = type==="activity" ? actTitle : saveTitle;
+    const detailField = type==="activity" ? actNote : saveAmount;
+
+    if(!titleField.value || !detailField.value)
+        return alert("Fill all fields");
+
+    await addDoc(collection(db,type),{
+        title:titleField.value,
+        detail:detailField.value
+    });
+
+    titleField.value="";
+    detailField.value="";
+};
+
+/* ================= DELETE ================= */
+window.deleteItem = async function(type,id){
+    await deleteDoc(doc(db,type,id));
+};
+
+/* ================= REALTIME LISTENERS ================= */
+function startListeners(){
+
+    /* ---- Schedule ---- */
+    onSnapshot(collection(db,"schedule"), snapshot=>{
+        const body=document.getElementById("scheduleBody");
+        body.innerHTML="";
+        const days=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+        let students={};
+
+        snapshot.forEach(docSnap=>{
+            const d=docSnap.data();
+            if(!students[d.name]) students[d.name]={};
+            students[d.name][d.day]=
+                `<b>${d.title}</b><br>${d.time}
+                 <br><button class="delete-btn"
+                 onclick="deleteItem('schedule','${docSnap.id}')">X</button>`;
+        });
+
+        for(let s in students){
+            let tr=document.createElement("tr");
+            let html=`<td class="student-col">${s}</td>`;
+            days.forEach(day=>{
+                html+=`<td>${students[s][day]||""}</td>`;
+            });
+            tr.innerHTML=html;
+            body.appendChild(tr);
+        }
+    });
+
+    /* ---- Activity & Saving ---- */
+    ["activity","saving"].forEach(type=>{
+        onSnapshot(collection(db,type), snapshot=>{
+            const list=document.getElementById(type+"List");
+            list.innerHTML="";
+            let total=0;
+
+            snapshot.forEach(docSnap=>{
+                const item=docSnap.data();
+                if(type==="saving")
+                    total+=parseFloat(item.detail||0);
+
+                const li=document.createElement("li");
+                li.className="hub-item";
+                li.innerHTML=
+                `<div><strong>${item.title}</strong><br>
+                 <small>${type==="saving"?"$":""}${item.detail}</small></div>
+                 <button class="delete-btn"
+                 onclick="deleteItem('${type}','${docSnap.id}')">Remove</button>`;
+
+                list.appendChild(li);
+            });
+
+            if(type==="saving")
+                document.getElementById("totalAmountDisplay")
+                .innerText=total.toLocaleString();
+        });
+    });
 }
-
-/* ---------- SAVE CLASS ---------- */
-window.saveClass = function(){
-const name = document.getElementById("studentName").value.trim();
-const title = document.getElementById("scheduleTitle").value.trim();
-const day = document.getElementById("daySelect").value;
-const time = document.getElementById("timeRange").value.trim();
-
-if(!name || !time) return alert("Fill Name & Time");
-
-push(ref(db,"schedule"),{name,title,day,time});
-
-document.getElementById("studentName").value="";
-document.getElementById("scheduleTitle").value="";
-document.getElementById("timeRange").value="";
-}
-
-/* ---------- REALTIME SCHEDULE ---------- */
-onValue(ref(db,"schedule"), snapshot=>{
-const body=document.getElementById("scheduleBody");
-body.innerHTML="";
-if(!snapshot.exists()) return;
-
-let grouped={};
-snapshot.forEach(child=>{
-const d=child.val();
-if(!grouped[d.name]) grouped[d.name]={};
-grouped[d.name][d.day]=`<b>${d.title}</b><br>${d.time}`;
-});
-
-const days=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
-
-for(let student in grouped){
-let row="<tr>";
-row+=`<td class="student-col">${student}</td>`;
-days.forEach(day=>{
-row+=`<td>${grouped[student][day]||""}</td>`;
-});
-row+=`<td>-</td></tr>`;
-body.innerHTML+=row;
-}
-});
-
-/* ---------- SAVE ACTIVITY / SAVING ---------- */
-window.saveHubItem=function(type){
-const titleField=type==="activity"?actTitle:saveTitle;
-const detailField=type==="activity"?actNote:saveAmount;
-
-if(!titleField.value||!detailField.value) return alert("Fill all fields");
-
-push(ref(db,type),{
-title:titleField.value,
-detail:detailField.value
-});
-
-titleField.value="";
-detailField.value="";
-}
-
-/* ---------- REALTIME LIST ---------- */
-["activity","saving"].forEach(type=>{
-onValue(ref(db,type),snapshot=>{
-const list=document.getElementById(type+"List");
-list.innerHTML="";
-let total=0;
-
-snapshot.forEach(child=>{
-const item=child.val();
-if(type==="saving") total+=parseFloat(item.detail||0);
-
-list.innerHTML+=`
-<li class="hub-item">
-<div><strong>${item.title}</strong><br>${type==="saving"?"$":""}${item.detail}</div>
-<button class="delete-btn" onclick="deleteItem('${type}','${child.key}')">Delete</button>
-</li>`;
-});
-
-if(type==="saving")
-document.getElementById("totalAmountDisplay").innerText=total;
-});
-});
-
-/* ---------- DELETE ---------- */
-window.deleteItem=function(type,id){
-remove(ref(db,`${type}/${id}`));
-}
-
 </script>
 </body>
 </html>
