@@ -1,98 +1,171 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Schedule Manager</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Schedule - Real Time</title>
     <style>
-        body {
-            font-family: Arial;
-            margin: 40px;
+        /* --- BLACK LOVE UI THEME --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { 
+            background: #0a0a0a; 
+            color: white; 
+            min-height: 100vh; 
+            display: flex; 
+            flex-direction: column;
+            align-items: center;
         }
-        .schedule {
-            border: 1px solid #ccc;
-            padding: 15px;
-            margin-bottom: 10px;
+
+        /* Login Page Styling */
+        #loginPage {
+            height: 100vh; width: 100%;
+            display: flex; justify-content: center; align-items: center;
+            background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
+        }
+        .login-box {
+            background: rgba(20, 20, 20, 0.9);
+            padding: 40px; border-radius: 20px;
+            border: 1px solid #333; text-align: center;
+            box-shadow: 0 0 30px rgba(255, 0, 50, 0.2);
+            width: 320px;
+        }
+        .heart-icon { font-size: 50px; color: #ff0033; margin-bottom: 10px; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        
+        input {
+            width: 100%; padding: 12px; margin: 10px 0;
+            background: #111; border: 1px solid #444; color: white; border-radius: 8px;
         }
         button {
-            margin-left: 5px;
+            background: #ff0033; color: white; border: none; padding: 12px 20px;
+            border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%;
+            transition: 0.3s;
         }
+        button:hover { background: #cc0029; }
+
+        /* Dashboard Styling */
+        #dashboard { display: none; width: 90%; max-width: 600px; padding-top: 50px; }
+        .schedule-card {
+            background: #1a1a1a; padding: 15px; border-radius: 12px;
+            margin-bottom: 15px; border-left: 5px solid #ff0033;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .controls { display: flex; gap: 5px; }
+        .edit-btn { background: #444; width: auto; font-size: 12px; padding: 5px 10px; }
+        .del-btn { background: #880000; width: auto; font-size: 12px; padding: 5px 10px; }
     </style>
 </head>
 <body>
 
-<h2>Schedule Manager</h2>
+    <div id="loginPage">
+        <div class="login-box">
+            <div class="heart-icon">❤</div>
+            <h2 style="margin-bottom: 20px;">Black Love</h2>
+            <input type="text" id="username" placeholder="Username">
+            <input type="password" id="password" placeholder="Password">
+            <button onclick="handleLogin()">Enter Our World</button>
+            <p id="error" style="color: #ff0033; font-size: 12px; margin-top: 10px;"></p>
+        </div>
+    </div>
 
-<input type="text" id="scheduleInput" placeholder="Enter schedule title">
-<button onclick="addSchedule()">Add Schedule</button>
-
-<div id="scheduleList"></div>
-
-<script>
-let schedules = JSON.parse(localStorage.getItem("schedules")) || [];
-
-function saveData() {
-    localStorage.setItem("schedules", JSON.stringify(schedules));
-}
-
-function renderSchedules() {
-    const list = document.getElementById("scheduleList");
-    list.innerHTML = "";
-
-    schedules.forEach((item, index) => {
-        list.innerHTML += `
-            <div class="schedule">
-                <strong>${item}</strong>
-                <button onclick="editSchedule(${index})">Edit</button>
-                <button onclick="deleteSchedule(${index})">Delete</button>
-            </div>
-        `;
-    });
-}
-
-function addSchedule() {
-    const input = document.getElementById("scheduleInput");
-    if (input.value.trim() === "") return;
-
-    schedules.push(input.value);
-    input.value = "";
-    saveData();
-    renderSchedules();
-}
-
-function deleteSchedule(index) {
-    schedules.splice(index, 1);
-    saveData();
-    renderSchedules();
-}
-
-function editSchedule(index) {
-    const newTitle = prompt("Edit schedule title:", schedules[index]);
-    if (newTitle !== null && newTitle.trim() !== "") {
-        schedules[index] = newTitle;
-        saveData();
-        renderSchedules();
-    }
-}
-
-renderSchedules();
-</script>
+    <div id="dashboard">
+        <h2 style="margin-bottom: 20px; text-align: center;">Our Life Schedules</h2>
+        <div style="display: flex; gap: 10px; margin-bottom: 30px;">
+            <input type="text" id="scheduleInput" placeholder="Write a new title...">
+            <button style="width: 100px;" onclick="addSchedule()">Add</button>
+        </div>
+        <div id="scheduleList"></div>
+        <button onclick="location.reload()" style="background: none; color: #666; font-size: 12px; margin-top: 50px;">Logout</button>
+    </div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-analytics.js";
+    // --- FIREBASE SETUP ---
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyDLHBbVIsr4mu8PhnWM_n4XHuxJsGkiOpE",
-    authDomain: "zaw--lynn-maw.firebaseapp.com",
-    projectId: "zaw--lynn-maw",
-    storageBucket: "zaw--lynn-maw.firebasestorage.app",
-    messagingSenderId: "618191013506",
-    appId: "1:618191013506:web:2ba52ea74b6cbda0db969b",
-    measurementId: "G-BKYBXB6PGQ"
-  };
+    const firebaseConfig = {
+        apiKey: "AIzaSyDLHBbVIsr4mu8PhnWM_n4XHuxJsGkiOpE",
+        authDomain: "zaw--lynn-maw.firebaseapp.com",
+        projectId: "zaw--lynn-maw",
+        storageBucket: "zaw--lynn-maw.firebasestorage.app",
+        messagingSenderId: "618191013506",
+        appId: "1:618191013506:web:2ba52ea74b6cbda0db969b",
+        measurementId: "G-BKYBXB6PGQ"
+    };
 
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-  const db = getFirestore(app);
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // --- APP LOGIC ---
+
+    // Login Function
+    window.handleLogin = () => {
+        const u = document.getElementById("username").value;
+        const p = document.getElementById("password").value;
+        
+        // You can change these credentials
+        if(u === "Mptzzlm" && p === "aishiteru") {
+            document.getElementById("loginPage").style.display = "none";
+            document.getElementById("dashboard").style.display = "block";
+            startListening();
+        } else {
+            document.getElementById("error").innerText = "Incorrect login details.";
+        }
+    };
+
+    // Add Schedule to Cloud
+    window.addSchedule = async () => {
+        const input = document.getElementById("scheduleInput");
+        if (input.value.trim() === "") return;
+        
+        await addDoc(collection(db, "schedules"), {
+            title: input.value,
+            timestamp: Date.now()
+        });
+        input.value = "";
+    };
+
+    // Delete Schedule from Cloud
+    window.deleteSchedule = async (id) => {
+        if(confirm("Delete this schedule?")) {
+            await deleteDoc(doc(db, "schedules", id));
+        }
+    };
+
+    // Edit Schedule in Cloud
+    window.editSchedule = async (id, currentTitle) => {
+        const newTitle = prompt("Edit schedule title:", currentTitle);
+        if (newTitle !== null && newTitle.trim() !== "") {
+            await updateDoc(doc(db, "schedules", id), {
+                title: newTitle
+            });
+        }
+    };
+
+    // REAL-TIME LISTENER (The key to multi-device sync)
+    function startListening() {
+        onSnapshot(collection(db, "schedules"), (snapshot) => {
+            const list = document.getElementById("scheduleList");
+            list.innerHTML = "";
+            
+            // Sort by timestamp
+            const docs = [];
+            snapshot.forEach(d => docs.push({id: d.id, ...d.data()}));
+            docs.sort((a, b) => b.timestamp - a.timestamp);
+
+            docs.forEach((item) => {
+                list.innerHTML += `
+                    <div class="schedule-card">
+                        <strong>${item.title}</strong>
+                        <div class="controls">
+                            <button class="edit-btn" onclick="editSchedule('${item.id}', '${item.title}')">Edit</button>
+                            <button class="del-btn" onclick="deleteSchedule('${item.id}')">Delete</button>
+                        </div>
+                    </div>
+                `;
+            });
+        });
+    }
 </script>
 </body>
 </html>
