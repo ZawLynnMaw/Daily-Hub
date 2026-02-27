@@ -248,9 +248,6 @@ function showSection(id) {
     document.getElementById(id).classList.add('active');
 }
 
-
-function renderAll() { renderSchedule(); renderHubList('activity'); renderHubList('saving'); }
-function logout() { location.reload(); }
 </script>
 
 <script type="module">
@@ -270,91 +267,107 @@ function logout() { location.reload(); }
   const app = initializeApp(firebaseConfig);
   const analytics = getAnalytics(app);
   const db = getFirestore(app);
-    
-    window.login = () => {
-        let user = document.getElementById("username").value;
-        let pass = document.getElementById("password").value;
-        if(user === "Mptzzlm" && pass === "aishiteru") {
-            document.getElementById("loginPage").style.display = "none";
-            document.getElementById("dashboard").style.display = "block";
-            startListeners();
-        } else {
-            document.getElementById("error").innerText = "Not today, stranger. ❤️";
-        }
-    };
 
-    window.logout = () => location.reload();
-    window.showSection = (id) => {
-        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-    };
+// =================== SCHEDULE ===================
 
-    window.saveClass = async () => {
-        const name = document.getElementById("studentName").value;
-        const title = document.getElementById("scheduleTitle").value;
-        const day = document.getElementById("daySelect").value;
-        const time = document.getElementById("timeRange").value;
-        if(!name || !time) return alert("Fill Name and Time!");
-        await addDoc(collection(db, "schedule"), { name, title, day, time });
-        document.getElementById("scheduleTitle").value = "";
-        document.getElementById("timeRange").value = "";
-    };
+window.saveClass = function() {
+    const name = document.getElementById("studentName").value;
+    const title = document.getElementById("scheduleTitle").value;
+    const day = document.getElementById("daySelect").value;
+    const time = document.getElementById("timeRange").value;
 
-    window.saveHubItem = async (type) => {
-        const tField = type === 'activity' ? document.getElementById("actTitle") : document.getElementById("saveTitle");
-        const dField = type === 'activity' ? document.getElementById("actNote") : document.getElementById("saveAmount");
-        if(!tField.value || !dField.value) return alert("Fill fields!");
-        await addDoc(collection(db, type), { title: tField.value, detail: dField.value });
-        tField.value = ""; dField.value = "";
-    };
+    if(!name || !time) return alert("Fill Name and Time!");
 
-    window.deleteItem = async (type, id) => await deleteDoc(doc(db, type, id));
+    const newRef = push(ref(db, "schedule"));
+    set(newRef, { name, title, day, time });
+};
 
-    function startListeners() {
-        onSnapshot(collection(db, "schedule"), (snapshot) => {
-            const body = document.getElementById("scheduleBody");
-            body.innerHTML = "";
-            const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-            let students = {};
-            snapshot.forEach(d => {
-                const data = d.data();
-                if(!students[data.name]) students[data.name] = {};
-                students[data.name][data.day] = `<b>${data.title}</b><br>${data.time}<br><button class="delete-btn" onclick="deleteItem('schedule','${d.id}')">X</button>`;
-            });
-            for (let s in students) {
-                let tr = document.createElement("tr");
-                let html = `<td class="student-col">${s}</td>`;
-                days.forEach(day => html += `<td>${students[s][day] || ""}</td>`);
-                tr.innerHTML = html;
-                body.appendChild(tr);
-            }
+// Real-time listener
+onValue(ref(db, "schedule"), snapshot => {
+    const body = document.getElementById("scheduleBody");
+    body.innerHTML = "";
+    const data = snapshot.val();
+    if(!data) return;
+
+    const grouped = {};
+
+    Object.entries(data).forEach(([id, item]) => {
+        if(!grouped[item.name]) grouped[item.name] = {};
+        grouped[item.name][item.day] = `<b>${item.title}</b><br>${item.time}`;
+    });
+
+    const days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+
+    for(let student in grouped) {
+        let tr = document.createElement("tr");
+        let html = `<td class="student-col">${student}</td>`;
+        days.forEach(day => {
+            html += `<td>${grouped[student][day] || ""}</td>`;
+        });
+        tr.innerHTML = html;
+        body.appendChild(tr);
+    }
+});
+
+// =================== ACTIVITY ===================
+
+window.saveHubItem = function(type) {
+    const titleField = type === 'activity'
+        ? document.getElementById("actTitle")
+        : document.getElementById("saveTitle");
+
+    const detailField = type === 'activity'
+        ? document.getElementById("actNote")
+        : document.getElementById("saveAmount");
+
+    if(!titleField.value || !detailField.value)
+        return alert("Fill all fields!");
+
+    const newRef = push(ref(db, type));
+    set(newRef, {
+        title: titleField.value,
+        detail: detailField.value
+    });
+
+    titleField.value = "";
+    detailField.value = "";
+};
+
+// Real-time Activity & Saving
+["activity", "saving"].forEach(type => {
+    onValue(ref(db, type), snapshot => {
+        const list = document.getElementById(type + "List");
+        list.innerHTML = "";
+        let total = 0;
+
+        snapshot.forEach(child => {
+            const item = child.val();
+            if(type === "saving") total += parseFloat(item.detail || 0);
+
+            let li = document.createElement("li");
+            li.className = "hub-item";
+            li.innerHTML = `
+                <div>
+                    <strong>${item.title}</strong><br>
+                    <small>${type === "saving" ? "$" : ""}${item.detail}</small>
+                </div>
+                <button class="delete-btn" onclick="deleteItem('${type}','${child.key}')">Remove</button>
+            `;
+            list.appendChild(li);
         });
 
-        ['activity', 'saving'].forEach(type => {
-            onSnapshot(collection(db, type), (snapshot) => {
-                const list = document.getElementById(type + "List");
-                list.innerHTML = "";
-                let total = 0;
-                snapshot.forEach(d => {
-                    const item = d.data();
-                    if(type === 'saving') total += parseFloat(item.detail || 0);
-                    let li = document.createElement("li");
-                    li.className = "hub-item";
-                    li.innerHTML = `<div><strong>${item.title}</strong><br><small>${type==='saving'?'$':''}${item.detail}</small></div>
-                                    <button class="delete-btn" onclick="deleteItem('${type}','${d.id}')">Remove</button>`;
-                    list.appendChild(li);
-                });
-                if(type === 'saving') document.getElementById("totalAmountDisplay").innerText = total.toLocaleString();
-            });
-        });
-    }
+        if(type === "saving")
+            document.getElementById("totalAmountDisplay").innerText =
+                total.toLocaleString();
+    });
+});
 
-    const lp = document.getElementById('loginPage');
-    for(let i=0; i<15; i++) {
-        const h = document.createElement('div'); h.className = 'bg-heart'; h.innerText = '❤';
-        h.style.left = Math.random() * 100 + 'vw'; h.style.animationDuration = (Math.random()*5+5)+'s';
-        lp.appendChild(h);
-    }
+// =================== DELETE ===================
+
+window.deleteItem = function(type, id) {
+    remove(ref(db, type + "/" + id));
+};
+
 </script>
 </body>
 </html>
