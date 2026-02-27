@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -210,69 +209,230 @@
     </div>
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, push, set, onValue, remove } 
-from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+<script>
+// Create floating background hearts
+const loginPage = document.getElementById('loginPage');
+for(let i=0; i<15; i++) {
+    const heart = document.createElement('div');
+    heart.className = 'bg-heart';
+    heart.innerText = '❤';
+    heart.style.left = Math.random() * 100 + 'vw';
+    heart.style.animationDuration = (Math.random() * 5 + 5) + 's';
+    heart.style.animationDelay = Math.random() * 5 + 's';
+    loginPage.appendChild(heart);
+}
 
-/* ✅ YOUR REAL CONFIG (FIXED) */
-const firebaseConfig = {
-  apiKey: "AIzaSyDLHBbVIsr4mu8PhnWM_n4XHuxJsGkiOpE",
-  authDomain: "zaw--lynn-maw.firebaseapp.com",
-  databaseURL: "https://zaw--lynn-maw-default-rtdb.firebaseio.com",
-  projectId: "zaw--lynn-maw",
-  storageBucket: "zaw--lynn-maw.firebasestorage.app",
-  messagingSenderId: "618191013506",
-  appId: "1:618191013506:web:2ba52ea74b6cbda0db969b"
-};
+// Enter Key Login Support
+document.addEventListener("DOMContentLoaded", () => {
+    const inputs = [document.getElementById("username"), document.getElementById("password")];
+    inputs.forEach(input => {
+        input.addEventListener("keypress", (e) => { if (e.key === "Enter") login(); });
+    });
+});
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+function login() {
+    let user = document.getElementById("username").value;
+    let pass = document.getElementById("password").value;
+    if(user === "Mptzzlm" && pass === "aishiteru") {
+        document.getElementById("loginPage").style.display = "none";
+        document.getElementById("dashboard").style.display = "block";
+        renderAll();
+    } else {
+        document.getElementById("error").innerText = "Not today, stranger. ❤️";
+    }
+}
 
-/* ---------------- SAVE CLASS ---------------- */
-window.saveClass = function () {
-    const name = document.getElementById("studentName").value.trim();
-    const title = document.getElementById("scheduleTitle").value.trim();
+function showSection(id) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+}
+
+function saveClass() {
+    const name = document.getElementById("studentName").value;
+    const title = document.getElementById("scheduleTitle").value;
     const day = document.getElementById("daySelect").value;
-    const time = document.getElementById("timeRange").value.trim();
-
+    const time = document.getElementById("timeRange").value;
     if(!name || !time) return alert("Fill Name and Time!");
 
-    const newRef = push(ref(db, "schedule"));
-    set(newRef, { name, title, day, time });
+    let data = JSON.parse("zaw--lynn-maw.firebasestorage.app") || {};
+    if(!data[name]) data[name] = {};
+    data[name][day] = `<b>${title}</b><br>${time}`;
+    localStorage.setItem("grid_data", JSON.stringify(data));
+    renderSchedule();
+	
+}
 
-    document.getElementById("studentName").value="";
-    document.getElementById("scheduleTitle").value="";
-    document.getElementById("timeRange").value="";
-};
+function renderSchedule() {
+    const data = JSON.parse("zaw--lynn-maw.firebasestorage.app") || {};
+    const body = document.getElementById("scheduleBody");
+    body.innerHTML = "";
+    const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
-/* ---------------- REALTIME RENDER ---------------- */
-const scheduleBody = document.getElementById("scheduleBody");
+    for (let student in data) {
+        let tr = document.createElement("tr");
+        let safeName = student.toLowerCase().replace(/\s/g, '');
+        tr.classList.add("row-" + safeName);
+        let html = `<td class="student-col">${student}</td>`;
+        days.forEach(day => { html += `<td>${data[student][day] || ""}</td>`; });
+        html += `<td><button class="delete-btn" onclick="deleteRow('${student}')">Delete</button></td>`;
+        tr.innerHTML = html;
+        body.appendChild(tr);
+    }
+}
 
-onValue(ref(db, "schedule"), (snapshot) => {
-    scheduleBody.innerHTML="";
-    const data = snapshot.val();
-    if(!data) return;
+function saveHubItem(type) {
+    const titleField = type === 'activity' ? document.getElementById("actTitle") : document.getElementById("saveTitle");
+    const detailField = type === 'activity' ? document.getElementById("actNote") : document.getElementById("saveAmount");
 
-    const grouped={};
+    if(!titleField.value || !detailField.value) return alert("Fill all fields!");
 
-    Object.entries(data).forEach(([id,item])=>{
-        if(!grouped[item.name]) grouped[item.name]={};
-        grouped[item.name][item.day]=`<b>${item.title}</b><br>${item.time}`;
+    let items = JSON.parse(localStorage.getItem(type + "_data")) || [];
+    items.push({ title: titleField.value, detail: detailField.value, id: Date.now() });
+    localStorage.setItem(type + "_data", JSON.stringify(items));
+    
+    titleField.value = "";
+    detailField.value = "";
+    renderHubList(type);
+}
+
+function renderHubList(type) {
+    const items = JSON.parse(localStorage.getItem(type + "_data")) || [];
+    const list = document.getElementById(type + "List");
+    list.innerHTML = "";
+    let total = 0;
+
+    items.forEach(item => {
+        if(type === 'saving') total += parseFloat(item.detail || 0);
+        let li = document.createElement("li");
+        li.className = "hub-item";
+        li.innerHTML = `<div><strong>${item.title}</strong><br><small>${type === 'saving' ? '$' : ''}${item.detail}</small></div>
+                        <button class="delete-btn" onclick="deleteItem('${type}', ${item.id})">Remove</button>`;
+        list.appendChild(li);
     });
 
-    const days=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+    if(type === 'saving') document.getElementById("totalAmountDisplay").innerText = total.toLocaleString();
+}
 
-    for(let student in grouped){
-        let tr=document.createElement("tr");
-        let html=`<td class="student-col">${student}</td>`;
-        days.forEach(day=>{
-            html+=`<td>${grouped[student][day]||""}</td>`;
-        });
-        html+=`<td></td>`;
-        tr.innerHTML=html;
-        scheduleBody.appendChild(tr);
-    }
-});
+function deleteRow(name) {
+    let data = JSON.parse("zaw--lynn-maw.firebasestorage.app");
+    delete data[name];
+    localStorage.setItem("grid_data", JSON.stringify(data));
+    renderSchedule();
+}
+
+function deleteItem(type, id) {
+    let items = JSON.parse(localStorage.getItem(type + "_data"));
+    items = items.filter(i => i.id !== id);
+    localStorage.setItem(type + "_data", JSON.stringify(items));
+    renderHubList(type);
+}
+
+function renderAll() { renderSchedule(); renderHubList('activity'); renderHubList('saving'); }
+function logout() { location.reload(); }
 </script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-analytics.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDLHBbVIsr4mu8PhnWM_n4XHuxJsGkiOpE",
+    authDomain: "zaw--lynn-maw.firebaseapp.com",
+    projectId: "zaw--lynn-maw",
+    storageBucket: "zaw--lynn-maw.firebasestorage.app",
+    messagingSenderId: "618191013506",
+    appId: "1:618191013506:web:2ba52ea74b6cbda0db969b",
+    measurementId: "G-BKYBXB6PGQ"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  const db = getFirestore(app);
+    
+    window.login = () => {
+        let user = document.getElementById("username").value;
+        let pass = document.getElementById("password").value;
+        if(user === "Mptzzlm" && pass === "aishiteru") {
+            document.getElementById("loginPage").style.display = "none";
+            document.getElementById("dashboard").style.display = "block";
+            startListeners();
+        } else {
+            document.getElementById("error").innerText = "Not today, stranger. ❤️";
+        }
+    };
+
+    window.logout = () => location.reload();
+    window.showSection = (id) => {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    };
+
+    window.saveClass = async () => {
+        const name = document.getElementById("studentName").value;
+        const title = document.getElementById("scheduleTitle").value;
+        const day = document.getElementById("daySelect").value;
+        const time = document.getElementById("timeRange").value;
+        if(!name || !time) return alert("Fill Name and Time!");
+        await addDoc(collection(db, "schedule"), { name, title, day, time });
+        document.getElementById("scheduleTitle").value = "";
+        document.getElementById("timeRange").value = "";
+    };
+
+    window.saveHubItem = async (type) => {
+        const tField = type === 'activity' ? document.getElementById("actTitle") : document.getElementById("saveTitle");
+        const dField = type === 'activity' ? document.getElementById("actNote") : document.getElementById("saveAmount");
+        if(!tField.value || !dField.value) return alert("Fill fields!");
+        await addDoc(collection(db, type), { title: tField.value, detail: dField.value });
+        tField.value = ""; dField.value = "";
+    };
+
+    window.deleteItem = async (type, id) => await deleteDoc(doc(db, type, id));
+
+    function startListeners() {
+        onSnapshot(collection(db, "schedule"), (snapshot) => {
+            const body = document.getElementById("scheduleBody");
+            body.innerHTML = "";
+            const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+            let students = {};
+            snapshot.forEach(d => {
+                const data = d.data();
+                if(!students[data.name]) students[data.name] = {};
+                students[data.name][data.day] = `<b>${data.title}</b><br>${data.time}<br><button class="delete-btn" onclick="deleteItem('schedule','${d.id}')">X</button>`;
+            });
+            for (let s in students) {
+                let tr = document.createElement("tr");
+                let html = `<td class="student-col">${s}</td>`;
+                days.forEach(day => html += `<td>${students[s][day] || ""}</td>`);
+                tr.innerHTML = html;
+                body.appendChild(tr);
+            }
+        });
+
+        ['activity', 'saving'].forEach(type => {
+            onSnapshot(collection(db, type), (snapshot) => {
+                const list = document.getElementById(type + "List");
+                list.innerHTML = "";
+                let total = 0;
+                snapshot.forEach(d => {
+                    const item = d.data();
+                    if(type === 'saving') total += parseFloat(item.detail || 0);
+                    let li = document.createElement("li");
+                    li.className = "hub-item";
+                    li.innerHTML = `<div><strong>${item.title}</strong><br><small>${type==='saving'?'$':''}${item.detail}</small></div>
+                                    <button class="delete-btn" onclick="deleteItem('${type}','${d.id}')">Remove</button>`;
+                    list.appendChild(li);
+                });
+                if(type === 'saving') document.getElementById("totalAmountDisplay").innerText = total.toLocaleString();
+            });
+        });
+    }
+
+    const lp = document.getElementById('loginPage');
+    for(let i=0; i<15; i++) {
+        const h = document.createElement('div'); h.className = 'bg-heart'; h.innerText = '❤';
+        h.style.left = Math.random() * 100 + 'vw'; h.style.animationDuration = (Math.random()*5+5)+'s';
+        lp.appendChild(h);
+    }
+</script>
+</body>
 </html>
