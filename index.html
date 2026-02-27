@@ -210,22 +210,22 @@
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot }
-from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-analytics.js";
 
-// 🔥 Firebase Config
-const firebaseConfig = {
-  apiKey: "AIzaSyDLHBbVIsr4mu8PhnWM_n4XHuxJsGkiOpE",
-  authDomain: "zaw--lynn-maw.firebaseapp.com",
-  projectId: "zaw--lynn-maw",
-  storageBucket: "zaw--lynn-maw.firebasestorage.app",
-  messagingSenderId: "618191013506",
-  appId: "1:618191013506:web:2ba52ea74b6cbda0db969b"
-};
+  const firebaseConfig = {
+    apiKey: "AIzaSyDLHBbVIsr4mu8PhnWM_n4XHuxJsGkiOpE",
+    authDomain: "zaw--lynn-maw.firebaseapp.com",
+    projectId: "zaw--lynn-maw",
+    storageBucket: "zaw--lynn-maw.firebasestorage.app",
+    messagingSenderId: "618191013506",
+    appId: "1:618191013506:web:2ba52ea74b6cbda0db969b",
+    measurementId: "G-BKYBXB6PGQ"
+  };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  const db = getFirestore(app);
 
 // ================= FLOATING HEARTS =================
 const loginPage = document.getElementById('loginPage');
