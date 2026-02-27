@@ -212,39 +212,24 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, push, set, onValue, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getDatabase, ref, push, set, onValue, remove } 
+from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyDLHBbVIsr4mu8PhnWM_n4XHuxJsGkiOpE",
-    authDomain: "zaw--lynn-maw.firebaseapp.com",
-    projectId: "zaw--lynn-maw",
-    storageBucket: "zaw--lynn-maw.firebasestorage.app",
-    messagingSenderId: "618191013506",
-    appId: "1:618191013506:web:2ba52ea74b6cbda0db969b",
-    measurementId: "G-BKYBXB6PGQ"
-  };
+/* ✅ YOUR REAL CONFIG (FIXED) */
+const firebaseConfig = {
+  apiKey: "AIzaSyDLHBbVIsr4mu8PhnWM_n4XHuxJsGkiOpE",
+  authDomain: "zaw--lynn-maw.firebaseapp.com",
+  databaseURL: "https://zaw--lynn-maw-default-rtdb.firebaseio.com",
+  projectId: "zaw--lynn-maw",
+  storageBucket: "zaw--lynn-maw.firebasestorage.app",
+  messagingSenderId: "618191013506",
+  appId: "1:618191013506:web:2ba52ea74b6cbda0db969b"
+};
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-/* ---------------- LOGIN ---------------- */
-window.login = function () {
-    let user = document.getElementById("username").value;
-    let pass = document.getElementById("password").value;
-    if(user === "Mptzzlm" && pass === "aishiteru") {
-        document.getElementById("loginPage").style.display = "none";
-        document.getElementById("dashboard").style.display = "block";
-    } else {
-        document.getElementById("error").innerText = "Not today, stranger. ❤️";
-    }
-};
-
-window.showSection = function(id) {
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-};
-
-/* ---------------- SCHEDULE ---------------- */
+/* ---------------- SAVE CLASS ---------------- */
 window.saveClass = function () {
     const name = document.getElementById("studentName").value.trim();
     const title = document.getElementById("scheduleTitle").value.trim();
@@ -254,124 +239,40 @@ window.saveClass = function () {
     if(!name || !time) return alert("Fill Name and Time!");
 
     const newRef = push(ref(db, "schedule"));
-    set(newRef, {
-        name, title, day, time
-    });
+    set(newRef, { name, title, day, time });
 
-    document.getElementById("studentName").value = "";
-    document.getElementById("scheduleTitle").value = "";
-    document.getElementById("timeRange").value = "";
+    document.getElementById("studentName").value="";
+    document.getElementById("scheduleTitle").value="";
+    document.getElementById("timeRange").value="";
 };
 
+/* ---------------- REALTIME RENDER ---------------- */
 const scheduleBody = document.getElementById("scheduleBody");
 
 onValue(ref(db, "schedule"), (snapshot) => {
-    scheduleBody.innerHTML = "";
+    scheduleBody.innerHTML="";
     const data = snapshot.val();
     if(!data) return;
 
-    const grouped = {};
+    const grouped={};
 
-    Object.entries(data).forEach(([id, item]) => {
-        if(!grouped[item.name]) grouped[item.name] = { idList: [] };
-        grouped[item.name][item.day] = `<b>${item.title}</b><br>${item.time}`;
-        grouped[item.name].idList.push(id);
+    Object.entries(data).forEach(([id,item])=>{
+        if(!grouped[item.name]) grouped[item.name]={};
+        grouped[item.name][item.day]=`<b>${item.title}</b><br>${item.time}`;
     });
 
-    const days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+    const days=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
 
-    for (let student in grouped) {
-        let tr = document.createElement("tr");
-        let html = `<td class="student-col">${student}</td>`;
-        days.forEach(day => {
-            html += `<td>${grouped[student][day] || ""}</td>`;
+    for(let student in grouped){
+        let tr=document.createElement("tr");
+        let html=`<td class="student-col">${student}</td>`;
+        days.forEach(day=>{
+            html+=`<td>${grouped[student][day]||""}</td>`;
         });
-
-        html += `<td>
-            <button class="delete-btn" onclick="deleteStudent('${student}')">Delete</button>
-        </td>`;
-
-        tr.innerHTML = html;
+        html+=`<td></td>`;
+        tr.innerHTML=html;
         scheduleBody.appendChild(tr);
     }
 });
-
-window.deleteStudent = function(name){
-    onValue(ref(db,"schedule"), (snapshot)=>{
-        const data = snapshot.val();
-        for(let id in data){
-            if(data[id].name === name){
-                remove(ref(db,"schedule/"+id));
-            }
-        }
-    }, { onlyOnce:true });
-};
-
-/* ---------------- ACTIVITY + SAVING ---------------- */
-
-window.saveHubItem = function(type){
-    const titleField = type === 'activity'
-        ? document.getElementById("actTitle")
-        : document.getElementById("saveTitle");
-
-    const detailField = type === 'activity'
-        ? document.getElementById("actNote")
-        : document.getElementById("saveAmount");
-
-    if(!titleField.value || !detailField.value)
-        return alert("Fill all fields!");
-
-    const newRef = push(ref(db, type));
-    set(newRef,{
-        title: titleField.value,
-        detail: detailField.value
-    });
-
-    titleField.value="";
-    detailField.value="";
-};
-
-function renderHub(type){
-    const list = document.getElementById(type+"List");
-    const totalDisplay = document.getElementById("totalAmountDisplay");
-
-    onValue(ref(db,type),(snapshot)=>{
-        list.innerHTML="";
-        let total=0;
-        const data = snapshot.val();
-        if(!data) return;
-
-        Object.entries(data).forEach(([id,item])=>{
-            if(type==="saving")
-                total+=parseFloat(item.detail||0);
-
-            let li=document.createElement("li");
-            li.className="hub-item";
-            li.innerHTML=`
-                <div>
-                    <strong>${item.title}</strong><br>
-                    <small>${type==="saving"?"$":""}${item.detail}</small>
-                </div>
-                <button class="delete-btn" onclick="deleteItem('${type}','${id}')">Remove</button>
-            `;
-            list.appendChild(li);
-        });
-
-        if(type==="saving")
-            totalDisplay.innerText=total.toLocaleString();
-    });
-}
-
-window.deleteItem = function(type,id){
-    remove(ref(db, type+"/"+id));
-};
-
-renderHub("activity");
-renderHub("saving");
-
-window.logout = function(){
-    location.reload();
-};
 </script>
-</body>
 </html>
