@@ -1,170 +1,359 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Our World</title>
+    <title>Our Life Activities - Black Love Edition</title>
     <style>
-        /* --- BLACK LOVE UI THEME --- */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { 
-            background: #0a0a0a; 
-            color: white; 
-            min-height: 100vh; 
-            display: flex; 
-            flex-direction: column;
-            align-items: center;
-        }
-
-        /* Login Page Styling */
-        #loginPage {
-            height: 100vh; width: 100%;
-            display: flex; justify-content: center; align-items: center;
-            background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
-        }
-        .login-box {
-            background: rgba(20, 20, 20, 0.9);
-            padding: 40px; border-radius: 20px;
-            border: 1px solid #333; text-align: center;
-            box-shadow: 0 0 30px rgba(255, 0, 50, 0.2);
-            width: 320px;
-        }
-        .heart-icon { font-size: 50px; color: #ff0033; margin-bottom: 10px; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        body { background: #0a0a0a; color: white; min-height: 100vh; padding-bottom: 50px; }
         
-        input {
-            width: 100%; padding: 12px; margin: 10px 0;
-            background: #111; border: 1px solid #444; color: white; border-radius: 8px;
+        /* --- BLACK LOVE LOGIN UI --- */
+        #loginPage { 
+            height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
+            position: relative;
+            overflow: hidden;
         }
-        button {
-            background: #ff0033; color: white; border: none; padding: 12px 20px;
-            border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%;
-            transition: 0.3s;
-        }
-        button:hover { background: #cc0029; }
 
-        /* Dashboard Styling */
-        #dashboard { display: none; width: 90%; max-width: 600px; padding-top: 50px; }
-        .schedule-card {
-            background: #1a1a1a; padding: 15px; border-radius: 12px;
-            margin-bottom: 15px; border-left: 5px solid #ff0033;
-            display: flex; justify-content: space-between; align-items: center;
+        /* Floating Neon Hearts in Background */
+        .bg-heart {
+            position: absolute;
+            color: rgba(255, 0, 50, 0.1);
+            font-size: 20px;
+            animation: floatUp 10s infinite linear;
+            z-index: 1;
         }
-        .controls { display: flex; gap: 5px; }
-        .edit-btn { background: #444; width: auto; font-size: 12px; padding: 5px 10px; }
-        .del-btn { background: #880000; width: auto; font-size: 12px; padding: 5px 10px; }
+
+        @keyframes floatUp {
+            0% { transform: translateY(110vh) rotate(0deg); opacity: 0; }
+            50% { opacity: 0.5; }
+            100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+        }
+
+        .login-box { 
+            background: rgba(20, 20, 20, 0.8); 
+            padding: 45px 35px; 
+            border-radius: 25px; 
+            backdrop-filter: blur(15px); 
+            width: 340px; 
+            text-align: center; 
+            border: 1px solid #333;
+            box-shadow: 0 0 40px rgba(255, 0, 0, 0.15);
+            z-index: 10;
+        }
+
+        .login-box h2 { 
+            color: #fff; 
+            font-size: 24px;
+            margin-bottom: 8px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .main-heart {
+            font-size: 50px;
+            color: #ff0033;
+            display: inline-block;
+            margin-bottom: 15px;
+            text-shadow: 0 0 20px #ff0033;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); text-shadow: 0 0 10px #ff0033; }
+            50% { transform: scale(1.15); text-shadow: 0 0 30px #ff0033; }
+            100% { transform: scale(1); text-shadow: 0 0 10px #ff0033; }
+        }
+
+        .login-box input { 
+            width: 100%; 
+            padding: 14px; 
+            margin: 12px 0; 
+            border: 1px solid #222; 
+            border-radius: 12px; 
+            outline: none; 
+            background: #111;
+            color: white;
+            transition: 0.3s;
+            text-align: center;
+        }
+
+        .login-box input:focus { 
+            border-color: #ff0033; 
+            box-shadow: 0 0 10px rgba(255, 0, 50, 0.3);
+            background: #000;
+        }
+
+        .login-box button { 
+            width: 100%; 
+            padding: 14px; 
+            margin-top: 15px;
+            border: none; 
+            border-radius: 12px; 
+            background: #ff0033; 
+            color: white; 
+            font-weight: bold; 
+            cursor: pointer; 
+            font-size: 16px;
+            transition: 0.3s;
+            box-shadow: 0 5px 15px rgba(255, 0, 50, 0.3);
+        }
+
+        .login-box button:hover { 
+            background: #cc0029; 
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 0, 50, 0.5);
+        }
+
+        /* Dashboard Styles (Original preserved but blended) */
+        #dashboard { display: none; background: #0f2027; min-height: 100vh; }
+        nav { background: rgba(0,0,0,0.8); padding: 15px; display: flex; justify-content: space-around; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); }
+        nav button { background: transparent; border: 1px solid white; padding: 8px 12px; color: white; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+        nav button:hover { background: white; color: black; }
+        .section { padding: 20px; display: none; width: 95%; margin: auto; }
+        .active { display: block; }
+        .card { background: rgba(255,255,255,0.1); padding: 20px; border-radius: 15px; margin-top: 15px; }
+        input, select { padding: 10px; border-radius: 8px; border: none; margin: 5px; font-size: 14px; }
+        .table-container { overflow-x: auto; margin-top: 20px; background: white; border-radius: 10px; }
+        table { width: 100%; border-collapse: collapse; color: #333; min-width: 900px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: center; font-size: 13px; }
+        th { background-color: #00ff00; color: black; font-weight: bold; }
+        .student-col { background-color: #ffff00 !important; font-weight: bold; text-align: left; }
+        .total-box { background: #ff0033; color: white; padding: 15px; border-radius: 12px; text-align: center; font-size: 22px; font-weight: bold; margin-bottom: 15px; }
+        .hub-list { list-style: none; margin-top: 15px; }
+        .hub-item { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #ff0033; }
+        .add-btn { background: #ff0033; padding: 12px 25px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; }
+        .delete-btn { background: #ff4d4d; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; }
+
+        /* Row Colors */
+        .row-susu { background-color: #ff9900; }
+        .row-moeyati { background-color: #9900ff; color: white; }
+        .row-raymand { background-color: #00ffff; }
+        .row-sofia { background-color: #ff00ff; color: white; }
     </style>
 </head>
 <body>
 
-    <div id="loginPage">
-        <div class="login-box">
-            <div class="heart-icon">❤</div>
-            <h2 style="margin-bottom: 20px;">Black Love</h2>
-            <input type="text" id="username" placeholder="Username">
-            <input type="password" id="password" placeholder="Password">
-            <button onclick="handleLogin()">Enter Our World</button>
-            <p id="error" style="color: #ff0033; font-size: 12px; margin-top: 10px;"></p>
+<div id="loginPage">
+    <div class="login-box">
+        <div class="main-heart">❤</div>
+        <h2>Life Activities</h2>
+        <p style="color: #666; font-size: 13px; margin-bottom: 15px;">Love Together, Mptzzlm</p>
+        <input type="text" id="username" placeholder="Username">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="login()">Enter Our World</button>
+        <p id="error" style="color:#ff0033; margin-top:10px; font-size: 13px;"></p>
+    </div>
+</div>
+
+<div id="dashboard">
+    <nav>
+        <button onclick="showSection('schedule')">📅 Class Grid</button>
+        <button onclick="showSection('activity')">🏃 Activities</button>
+        <button onclick="showSection('saving')">💰 Saving</button>
+        <button onclick="logout()">Logout</button>
+    </nav>
+
+    <div class="section active" id="schedule">
+        <div class="card">
+            <h3>Add Class Schedule</h3>
+            <input type="text" id="studentName" placeholder="Student Name">
+            <input type="text" id="scheduleTitle" placeholder="Subject/Title">
+            <select id="daySelect">
+                <option value="Monday">Monday</option><option value="Tuesday">Tuesday</option>
+                <option value="Wednesday">Wednesday</option><option value="Thursday">Thursday</option>
+                <option value="Friday">Friday</option><option value="Saturday">Saturday</option>
+                <option value="Sunday">Sunday</option>
+            </select>
+            <input type="text" id="timeRange" placeholder="Time (e.g. 16:00 to 17:30)">
+            <button class="add-btn" onclick="saveClass()">Save to Grid</button>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="background:#ffff00">Student</th>
+                        <th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th>
+                        <th>Friday</th><th>Saturday</th><th>Sunday</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="scheduleBody"></tbody>
+            </table>
         </div>
     </div>
 
-    <div id="dashboard">
-        <h2 style="margin-bottom: 20px; text-align: center;">Our Life Schedules</h2>
-        <div style="display: flex; gap: 10px; margin-bottom: 30px;">
-            <input type="text" id="scheduleInput" placeholder="Write a new title...">
-            <button style="width: 100px;" onclick="addSchedule()">Add</button>
+    <div class="section" id="activity">
+        <div class="card">
+            <h3>Add Daily Activity</h3>
+            <input type="text" id="actTitle" placeholder="Activity Title">
+            <input type="text" id="actNote" placeholder="Notes/Details">
+            <button class="add-btn" onclick="saveHubItem('activity')">Add Activity</button>
         </div>
-        <div id="scheduleList"></div>
-        <button onclick="location.reload()" style="background: none; color: #666; font-size: 12px; margin-top: 50px;">Logout</button>
+        <ul id="activityList" class="hub-list"></ul>
     </div>
+
+    <div class="section" id="saving">
+        <div class="total-box">Total Savings: <span id="totalAmountDisplay">0</span></div>
+        <div class="card">
+            <h3>Add Saving Goal</h3>
+            <input type="text" id="saveTitle" placeholder="Saving Title">
+            <input type="number" id="saveAmount" placeholder="Amount (Numbers only)">
+            <button class="add-btn" onclick="saveHubItem('saving')">Log Saving</button>
+        </div>
+        <ul id="savingList" class="hub-list"></ul>
+    </div>
+</div>
+
+<script>
+// Create floating background hearts
+const loginPage = document.getElementById('loginPage');
+for(let i=0; i<15; i++) {
+    const heart = document.createElement('div');
+    heart.className = 'bg-heart';
+    heart.innerText = '❤';
+    heart.style.left = Math.random() * 100 + 'vw';
+    heart.style.animationDuration = (Math.random() * 5 + 5) + 's';
+    heart.style.animationDelay = Math.random() * 5 + 's';
+    loginPage.appendChild(heart);
+}
+
+// Enter Key Login Support
+document.addEventListener("DOMContentLoaded", () => {
+    const inputs = [document.getElementById("username"), document.getElementById("password")];
+    inputs.forEach(input => {
+        input.addEventListener("keypress", (e) => { if (e.key === "Enter") login(); });
+    });
+});
+
+function login() {
+    let user = document.getElementById("username").value;
+    let pass = document.getElementById("password").value;
+    if(user === "Mptzzlm" && pass === "aishiteru") {
+        document.getElementById("loginPage").style.display = "none";
+        document.getElementById("dashboard").style.display = "block";
+        renderAll();
+    } else {
+        document.getElementById("error").innerText = "Not today, stranger. ❤️";
+    }
+}
+
+function showSection(id) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+}
+
+
+function renderAll() { renderSchedule(); renderHubList('activity'); renderHubList('saving'); }
+function logout() { location.reload(); }
+</script>
 
 <script type="module">
-    // --- FIREBASE SETUP ---
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-analytics.js";
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyDLHBbVIsr4mu8PhnWM_n4XHuxJsGkiOpE",
-        authDomain: "zaw--lynn-maw.firebaseapp.com",
-        projectId: "zaw--lynn-maw",
-        storageBucket: "zaw--lynn-maw.firebasestorage.app",
-        messagingSenderId: "618191013506",
-        appId: "1:618191013506:web:2ba52ea74b6cbda0db969b",
-        measurementId: "G-BKYBXB6PGQ"
-    };
+  const firebaseConfig = {
+    apiKey: "AIzaSyDLHBbVIsr4mu8PhnWM_n4XHuxJsGkiOpE",
+    authDomain: "zaw--lynn-maw.firebaseapp.com",
+    projectId: "zaw--lynn-maw",
+    storageBucket: "zaw--lynn-maw.firebasestorage.app",
+    messagingSenderId: "618191013506",
+    appId: "1:618191013506:web:2ba52ea74b6cbda0db969b",
+    measurementId: "G-BKYBXB6PGQ"
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    // --- APP LOGIC ---
-
-    // Login Function
-    window.handleLogin = () => {
-        const u = document.getElementById("username").value;
-        const p = document.getElementById("password").value;
-        
-        // You can change these credentials
-        if(u === "Mptzzlm" && p === "aishiteru") {
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  const db = getFirestore(app);
+    
+    window.login = () => {
+        let user = document.getElementById("username").value;
+        let pass = document.getElementById("password").value;
+        if(user === "Mptzzlm" && pass === "aishiteru") {
             document.getElementById("loginPage").style.display = "none";
             document.getElementById("dashboard").style.display = "block";
-            startListening();
+            startListeners();
         } else {
-            document.getElementById("error").innerText = "Incorrect login details.";
+            document.getElementById("error").innerText = "Not today, stranger. ❤️";
         }
     };
 
-    // Add Schedule to Cloud
-    window.addSchedule = async () => {
-        const input = document.getElementById("scheduleInput");
-        if (input.value.trim() === "") return;
-        
-        await addDoc(collection(db, "schedules"), {
-            title: input.value,
-            timestamp: Date.now()
-        });
-        input.value = "";
+    window.logout = () => location.reload();
+    window.showSection = (id) => {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
     };
 
-    // Delete Schedule from Cloud
-    window.deleteSchedule = async (id) => {
-        if(confirm("Delete this schedule?")) {
-            await deleteDoc(doc(db, "schedules", id));
-        }
+    window.saveClass = async () => {
+        const name = document.getElementById("studentName").value;
+        const title = document.getElementById("scheduleTitle").value;
+        const day = document.getElementById("daySelect").value;
+        const time = document.getElementById("timeRange").value;
+        if(!name || !time) return alert("Fill Name and Time!");
+        await addDoc(collection(db, "schedule"), { name, title, day, time });
+        document.getElementById("scheduleTitle").value = "";
+        document.getElementById("timeRange").value = "";
     };
 
-    // Edit Schedule in Cloud
-    window.editSchedule = async (id, currentTitle) => {
-        const newTitle = prompt("Edit schedule title:", currentTitle);
-        if (newTitle !== null && newTitle.trim() !== "") {
-            await updateDoc(doc(db, "schedules", id), {
-                title: newTitle
+    window.saveHubItem = async (type) => {
+        const tField = type === 'activity' ? document.getElementById("actTitle") : document.getElementById("saveTitle");
+        const dField = type === 'activity' ? document.getElementById("actNote") : document.getElementById("saveAmount");
+        if(!tField.value || !dField.value) return alert("Fill fields!");
+        await addDoc(collection(db, type), { title: tField.value, detail: dField.value });
+        tField.value = ""; dField.value = "";
+    };
+
+    window.deleteItem = async (type, id) => await deleteDoc(doc(db, type, id));
+
+    function startListeners() {
+        onSnapshot(collection(db, "schedule"), (snapshot) => {
+            const body = document.getElementById("scheduleBody");
+            body.innerHTML = "";
+            const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+            let students = {};
+            snapshot.forEach(d => {
+                const data = d.data();
+                if(!students[data.name]) students[data.name] = {};
+                students[data.name][data.day] = `<b>${data.title}</b><br>${data.time}<br><button class="delete-btn" onclick="deleteItem('schedule','${d.id}')">X</button>`;
             });
-        }
-    };
+            for (let s in students) {
+                let tr = document.createElement("tr");
+                let html = `<td class="student-col">${s}</td>`;
+                days.forEach(day => html += `<td>${students[s][day] || ""}</td>`);
+                tr.innerHTML = html;
+                body.appendChild(tr);
+            }
+        });
 
-    // REAL-TIME LISTENER (The key to multi-device sync)
-    function startListening() {
-        onSnapshot(collection(db, "schedules"), (snapshot) => {
-            const list = document.getElementById("scheduleList");
-            list.innerHTML = "";
-            
-            // Sort by timestamp
-            const docs = [];
-            snapshot.forEach(d => docs.push({id: d.id, ...d.data()}));
-            docs.sort((a, b) => b.timestamp - a.timestamp);
-
-            docs.forEach((item) => {
-                list.innerHTML += `
-                    <div class="schedule-card">
-                        <strong>${item.title}</strong>
-                        <div class="controls">
-                            <button class="edit-btn" onclick="editSchedule('${item.id}', '${item.title}')">Edit</button>
-                            <button class="del-btn" onclick="deleteSchedule('${item.id}')">Delete</button>
-                        </div>
-                    </div>
-                `;
+        ['activity', 'saving'].forEach(type => {
+            onSnapshot(collection(db, type), (snapshot) => {
+                const list = document.getElementById(type + "List");
+                list.innerHTML = "";
+                let total = 0;
+                snapshot.forEach(d => {
+                    const item = d.data();
+                    if(type === 'saving') total += parseFloat(item.detail || 0);
+                    let li = document.createElement("li");
+                    li.className = "hub-item";
+                    li.innerHTML = `<div><strong>${item.title}</strong><br><small>${type==='saving'?'$':''}${item.detail}</small></div>
+                                    <button class="delete-btn" onclick="deleteItem('${type}','${d.id}')">Remove</button>`;
+                    list.appendChild(li);
+                });
+                if(type === 'saving') document.getElementById("totalAmountDisplay").innerText = total.toLocaleString();
             });
         });
+    }
+
+    const lp = document.getElementById('loginPage');
+    for(let i=0; i<15; i++) {
+        const h = document.createElement('div'); h.className = 'bg-heart'; h.innerText = '❤';
+        h.style.left = Math.random() * 100 + 'vw'; h.style.animationDuration = (Math.random()*5+5)+'s';
+        lp.appendChild(h);
     }
 </script>
 </body>
