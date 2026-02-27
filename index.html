@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -270,16 +269,29 @@ function showSection(id) {
 
 // =================== SCHEDULE ===================
 
-window.saveClass = function() {
-    const name = document.getElementById("studentName").value;
-    const title = document.getElementById("scheduleTitle").value;
+window.saveClass = function () {
+    const name = document.getElementById("studentName").value.trim();
+    const title = document.getElementById("scheduleTitle").value.trim();
     const day = document.getElementById("daySelect").value;
-    const time = document.getElementById("timeRange").value;
+    const time = document.getElementById("timeRange").value.trim();
 
-    if(!name || !time) return alert("Fill Name and Time!");
+    if (!name || !time) {
+        alert("Fill Name and Time!");
+        return;
+    }
 
     const newRef = push(ref(db, "schedule"));
-    set(newRef, { name, title, day, time });
+    set(newRef, {
+        name: name,
+        title: title,
+        day: day,
+        time: time
+    });
+
+    // clear input after save
+    document.getElementById("studentName").value = "";
+    document.getElementById("scheduleTitle").value = "";
+    document.getElementById("timeRange").value = "";
 };
 
 // Real-time listener
